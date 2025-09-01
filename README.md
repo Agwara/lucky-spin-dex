@@ -1,73 +1,142 @@
-# Welcome to your Lovable project
+# Lucky Spin DEX - Decentralized Lottery Platform
 
-## Project info
+A beautiful, fully-featured decentralized lottery game built with React, Vite, Tailwind CSS, and Web3 integration.
 
-**URL**: https://lovable.dev/projects/bd079381-8d21-4266-9a8a-4b98d457a3f6
+## 🎰 Features
 
-## How can I edit this code?
+- **Provably Fair Lottery**: Powered by Chainlink VRF for truly random number generation
+- **Token Staking**: Stake PTK tokens to participate and earn rewards
+- **Gift System**: Play consecutive rounds to unlock bonus distributions
+- **Beautiful UI**: Dark theme with lottery-themed gradients and animations
+- **Real-time Updates**: Live round tracking and instant notifications
+- **Mobile Responsive**: Optimized for all device sizes
 
-There are several ways of editing your application.
+## 🚀 Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/bd079381-8d21-4266-9a8a-4b98d457a3f6) and start prompting.
+- Node.js (v16 or higher)
+- npm or yarn
+- MetaMask or compatible Web3 wallet
 
-Changes made via Lovable will be committed automatically to this repo.
+### Installation
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+1. Clone the repository:
+```bash
 git clone <YOUR_GIT_URL>
+cd lucky-spin-dex
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Install dependencies:
+```bash
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. Configure your contract addresses in `src/lib/contracts.ts`:
+```typescript
+export const CONTRACT_ADDRESSES = {
+  PLATFORM_TOKEN: 'YOUR_PLATFORM_TOKEN_ADDRESS',
+  CORE_CONTRACT: 'YOUR_CORE_CONTRACT_ADDRESS', 
+  GIFT_CONTRACT: 'YOUR_GIFT_CONTRACT_ADDRESS',
+  ADMIN_CONTRACT: 'YOUR_ADMIN_CONTRACT_ADDRESS',
+}
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🎮 How to Play
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. **Connect Wallet**: Connect your Web3 wallet (MetaMask recommended)
+2. **Stake Tokens**: Stake at least 10 PTK tokens to become eligible
+3. **Select Numbers**: Choose 5 numbers from 1-49
+4. **Place Bet**: Set your bet amount and place your wager
+5. **Wait for Results**: Numbers are drawn every 5 minutes using Chainlink VRF
+6. **Claim Winnings**: Automatically claim your winnings if you match numbers
 
-**Use GitHub Codespaces**
+## 🏆 Prize Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **5 matches**: 800x your bet (Jackpot!)
+- **4 matches**: 80x your bet
+- **3 matches**: 8x your bet  
+- **2 matches**: 2x your bet
 
-## What technologies are used for this project?
+*All prizes subject to 5% house edge*
 
-This project is built with:
+## 🎁 Gift System
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Play 3+ consecutive rounds to become eligible for gifts
+- Random gift distributions to eligible players
+- Creator rewards for platform sustainability
 
-## How can I deploy this project?
+## 🛠 Technology Stack
 
-Simply open [Lovable](https://lovable.dev/projects/bd079381-8d21-4266-9a8a-4b98d457a3f6) and click on Share -> Publish.
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS with custom lottery theme
+- **Web3**: Wagmi, Viem for Ethereum integration
+- **UI Components**: shadcn/ui with custom variants
+- **Notifications**: Sonner for toast messages
+- **Icons**: Lucide React
 
-## Can I connect a custom domain to my Lovable project?
+## 📱 Contract Integration
 
-Yes, you can!
+The app integrates with 4 main smart contracts:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. **PlatformToken**: ERC20 token with staking functionality
+2. **LotteryGameCore**: Main lottery logic and round management  
+3. **LotteryGift**: Gift distribution system
+4. **LotteryAdmin**: Administrative functions with timelock
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🎨 Design System
+
+The app features a custom lottery-themed design system with:
+
+- **Royal Purple & Gold**: Primary color scheme
+- **Dynamic Gradients**: Eye-catching background effects
+- **Animated Elements**: Lottery balls, winning effects
+- **Glassmorphism**: Modern card designs with backdrop blur
+- **Responsive Layout**: Mobile-first approach
+
+## 🔧 Configuration
+
+### Web3 Setup
+
+Update `src/lib/web3.ts` with your preferred chains and RPC endpoints.
+
+### Contract ABIs
+
+Contract ABIs are defined in `src/lib/contracts.ts`. Update them if your contracts have different interfaces.
+
+## 📦 Build & Deploy
+
+```bash
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+Deploy the `dist` folder to your preferred hosting platform.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🎯 Roadmap
+
+- [ ] Mobile app version
+- [ ] Multiple lottery games
+- [ ] NFT prizes
+- [ ] Social features
+- [ ] Analytics dashboard
+
+---
+
+**Lucky Spin DEX** - Where luck meets technology! 🍀✨

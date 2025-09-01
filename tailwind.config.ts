@@ -26,7 +26,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					glow: 'hsl(var(--primary-glow))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -52,6 +53,14 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				lottery: {
+					win: 'hsl(var(--lottery-win))',
+					'win-glow': 'hsl(var(--lottery-win-glow))',
+					jackpot: 'hsl(var(--jackpot))',
+					'jackpot-glow': 'hsl(var(--jackpot-glow))',
+					'number-ball': 'hsl(var(--number-ball))',
+					'number-ball-selected': 'hsl(var(--number-ball-selected))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -62,6 +71,20 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-gold': 'var(--gradient-gold)',
+				'gradient-jackpot': 'var(--gradient-jackpot)',
+				'gradient-background': 'var(--gradient-background)',
+				'gradient-card': 'var(--gradient-card)'
+			},
+			boxShadow: {
+				'purple': 'var(--shadow-purple)',
+				'gold': 'var(--shadow-gold)',
+				'jackpot': 'var(--shadow-jackpot)',
+				'glow-primary': 'var(--glow-primary)',
+				'glow-gold': 'var(--glow-gold)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
