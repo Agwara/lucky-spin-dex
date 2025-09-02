@@ -4,17 +4,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Sparkles, Trophy, Gift, Settings, RefreshCw } from "lucide-react"
+import { Sparkles, Trophy, Gift, Settings, RefreshCw, Shield } from "lucide-react"
 import { WalletConnect } from "@/components/wallet/WalletConnect"
 import { CurrentRound } from "@/components/lottery/CurrentRound"
 import { NumberSelector } from "@/components/lottery/NumberSelector"
 import { StakingPanel } from "@/components/lottery/StakingPanel"
 import { UserStats } from "@/components/lottery/UserStats"
+import { AdminPanel } from "@/components/admin/AdminPanel"
 import { useLottery } from "@/hooks/useLottery"
 import { toast } from "sonner"
 
 const Index = () => {
-  const { isConnected } = useAccount()
+  const { isConnected, address } = useAccount()
   const {
     currentRound,
     userStats,
@@ -31,6 +32,9 @@ const Index = () => {
     unstakeTokens,
     refetch
   } = useLottery()
+
+  // Mock admin check - replace with actual admin check from your contract
+  const isAdmin = address?.toLowerCase() === "0x742d35cc6634c0532925a3b8d29ef515716065f1"
 
   const [refreshing, setRefreshing] = useState(false)
 
@@ -157,7 +161,7 @@ const Index = () => {
             <CurrentRound round={currentRound} loading={isLoading} />
 
             <Tabs defaultValue="play" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
                 <TabsTrigger value="play" className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   Play Lottery
@@ -170,6 +174,12 @@ const Index = () => {
                   <Gift className="w-4 h-4" />
                   My Stats
                 </TabsTrigger>
+                {isAdmin && (
+                  <TabsTrigger value="admin" className="flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    Admin
+                  </TabsTrigger>
+                )}
               </TabsList>
 
               <TabsContent value="play" className="space-y-6">
@@ -209,6 +219,12 @@ const Index = () => {
                   <WalletConnect />
                 </div>
               </TabsContent>
+
+              {isAdmin && (
+                <TabsContent value="admin" className="space-y-6">
+                  <AdminPanel isAdmin={isAdmin} loading={isLoading} />
+                </TabsContent>
+              )}
             </Tabs>
           </div>
         )}
