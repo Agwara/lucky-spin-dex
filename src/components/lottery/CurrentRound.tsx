@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Clock, Users, DollarSign, Trophy } from "lucide-react"
 import { LotteryBall } from "./LotteryBall"
+import { useState, useRef, useEffect } from "react"
 
 interface Round {
   roundId: number
@@ -44,8 +45,30 @@ export const CurrentRound = ({ round, loading = false }: CurrentRoundProps) => {
     )
   }
 
-  const timeRemaining = Math.max(0, round.endTime * 1000 - Date.now())
-  const isActive = timeRemaining > 0 && !round.numbersDrawn
+  const [remaining, setRemaining] = useState(0)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const isActive = remaining > 0 && !round.numbersDrawn
+
+  useEffect(() => {
+    if (!round) return
+
+    const updateTime = () => {
+      const now = Date.now()
+      const msLeft = round.endTime * 1000 - now
+      setRemaining(Math.max(0, msLeft))
+    }
+
+    updateTime() // initial run
+
+    // only update once per second
+    timerRef.current = setInterval(updateTime, 1000)
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [round?.endTime])
+
   
   // Format time remaining
   const formatTime = (ms: number) => {
@@ -85,14 +108,13 @@ export const CurrentRound = ({ round, loading = false }: CurrentRoundProps) => {
               </CardDescription>
             </div>
 
-            {isActive && (
-              <div className="text-right">
-                <div className="text-3xl font-bold text-primary">
-                  {formatTime(timeRemaining)}
-                </div>
-                <div className="text-sm text-muted-foreground">Time left</div>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-primary">
+                {formatTime(remaining)}
               </div>
-            )}
+              <div className="text-sm text-muted-foreground">Time left</div>
+            </div>
+            
           </div>
         </CardHeader>
 

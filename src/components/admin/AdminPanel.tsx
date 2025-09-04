@@ -54,7 +54,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
 
   if (!isAdmin) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-4">
         <Alert>
           <Shield className="h-4 w-4" />
           <AlertTitle>Access Denied</AlertTitle>
@@ -231,64 +231,66 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 px-4 sm:px-6 lg:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold jackpot-glow">Admin Panel</h2>
-          <p className="text-muted-foreground">Manage lottery system settings</p>
+          <h2 className="text-xl sm:text-2xl font-bold jackpot-glow">Admin Panel</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage lottery system settings</p>
         </div>
-        <Badge variant="outline" className="border-lottery-win text-lottery-win">
+        <Badge variant="outline" className="border-lottery-win text-lottery-win self-start sm:self-auto">
           <Shield className="w-3 h-3 mr-1" />
           Administrator
         </Badge>
       </div>
 
       <Tabs defaultValue="core" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="core" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsTrigger value="core" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
             <Settings className="w-4 h-4" />
-            Core System
+            <span className="text-xs sm:text-sm">Core System</span>
           </TabsTrigger>
-          <TabsTrigger value="gifts" className="flex items-center gap-2">
+          <TabsTrigger value="gifts" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
             <Gift className="w-4 h-4" />
-            Gift System
+            <span className="text-xs sm:text-sm">Gift System</span>
           </TabsTrigger>
-          <TabsTrigger value="token" className="flex items-center gap-2">
+          <TabsTrigger value="token" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
             <DollarSign className="w-4 h-4" />
-            Token Settings
+            <span className="text-xs sm:text-sm">Token Settings</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Core System Management */}
-        <TabsContent value="core" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
+        <TabsContent value="core" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Max Payout Management */}
             <Card className="lottery-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-lottery-jackpot" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-lottery-jackpot" />
                   Max Payout Per Round
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Schedule and execute max payout changes (24h timelock required)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="maxPayout">New Max Payout (PTK)</Label>
+                  <Label htmlFor="maxPayout" className="text-sm">New Max Payout (PTK)</Label>
                   <Input
                     id="maxPayout"
                     type="number"
                     placeholder="e.g., 10000"
                     value={maxPayoutAmount}
                     onChange={(e) => setMaxPayoutAmount(e.target.value)}
+                    className="mt-1"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     onClick={handleScheduleMaxPayoutChange}
                     disabled={isSchedulingPayout || !maxPayoutAmount}
-                    className="flex-1"
+                    className="flex-1 text-sm p-1"
+                    size="sm"
                   >
                     <Clock className="w-4 h-4 mr-2" />
                     {isSchedulingPayout ? "Scheduling..." : "Schedule Change"}
@@ -297,6 +299,8 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                     onClick={handleSetMaxPayout}
                     disabled={isSettingPayout}
                     variant="outline"
+                    className="text-sm"
+                    size="sm"
                   >
                     {isSettingPayout ? "Setting..." : "Execute"}
                   </Button>
@@ -306,22 +310,23 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
 
             {/* System Control */}
             <Card className="lottery-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-secondary" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
                   System Control
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Pause/unpause the lottery system
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     onClick={handlePause}
                     disabled={isPausing}
                     variant="destructive"
-                    className="flex-1"
+                    className="flex-1 text-sm p-1"
+                    size="sm"
                   >
                     <Pause className="w-4 h-4 mr-2" />
                     {isPausing ? "Pausing..." : "Pause System"}
@@ -330,7 +335,8 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                     onClick={handleUnpause}
                     disabled={isUnpausing}
                     variant="default"
-                    className="flex-1"
+                    className="flex-1 text-sm p-1"
+                    size="sm"
                   >
                     <Play className="w-4 h-4 mr-2" />
                     {isUnpausing ? "Unpausing..." : "Unpause System"}
@@ -339,7 +345,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                 
                 <Alert className="border-destructive">
                   <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
+                  <AlertDescription className="text-xs sm:text-sm">
                     Pausing will prevent all betting and staking operations.
                   </AlertDescription>
                 </Alert>
@@ -347,31 +353,34 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
             </Card>
 
             {/* Emergency Withdrawal */}
-            <Card className="lottery-card md:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive">
-                  <AlertTriangle className="w-5 h-5" />
+            <Card className="lottery-card lg:col-span-2">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-destructive text-base sm:text-lg">
+                  <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
                   Emergency Withdrawal
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Withdraw funds from the lottery contract in emergency situations
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="emergencyAmount">Amount (PTK)</Label>
+                <div className="max-w-sm">
+                  <Label htmlFor="emergencyAmount" className="text-sm">Amount (PTK)</Label>
                   <Input
                     id="emergencyAmount"
                     type="number"
                     placeholder="e.g., 1000"
                     value={emergencyWithdrawAmount}
                     onChange={(e) => setEmergencyWithdrawAmount(e.target.value)}
+                    className="mt-1"
                   />
                 </div>
                 <Button
                   onClick={handleEmergencyWithdraw}
                   disabled={isEmergencyWithdraw || !emergencyWithdrawAmount}
                   variant="destructive"
+                  size="sm"
+                  className="text-sm"
                 >
                   <AlertTriangle className="w-4 h-4 mr-2" />
                   {isEmergencyWithdraw ? "Withdrawing..." : "Emergency Withdraw"}
@@ -382,54 +391,58 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
         </TabsContent>
 
         {/* Gift System Management */}
-        <TabsContent value="gifts" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
+        <TabsContent value="gifts" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Gift Settings */}
             <Card className="lottery-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-secondary" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
                   Gift Distribution Settings
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Configure gift amounts and recipients
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="recipientsCount">Recipients Count</Label>
+                  <Label htmlFor="recipientsCount" className="text-sm">Recipients Count</Label>
                   <Input
                     id="recipientsCount"
                     type="number"
                     placeholder="e.g., 10"
                     value={giftRecipientsCount}
                     onChange={(e) => setGiftRecipientsCount(e.target.value)}
+                    className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="creatorAmount">Creator Gift Amount (PTK)</Label>
+                  <Label htmlFor="creatorAmount" className="text-sm">Creator Gift Amount (PTK)</Label>
                   <Input
                     id="creatorAmount"
                     type="number"
                     placeholder="e.g., 100"
                     value={creatorGiftAmount}
                     onChange={(e) => setCreatorGiftAmount(e.target.value)}
+                    className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="userAmount">User Gift Amount (PTK)</Label>
+                  <Label htmlFor="userAmount" className="text-sm">User Gift Amount (PTK)</Label>
                   <Input
                     id="userAmount"
                     type="number"
                     placeholder="e.g., 50"
                     value={userGiftAmount}
                     onChange={(e) => setUserGiftAmount(e.target.value)}
+                    className="mt-1"
                   />
                 </div>
                 <Button
                   onClick={handleUpdateGiftSettings}
                   disabled={isUpdatingGiftSettings}
-                  className="w-full"
+                  className="w-full text-sm"
+                  size="sm"
                 >
                   {isUpdatingGiftSettings ? "Updating..." : "Update Settings"}
                 </Button>
@@ -438,35 +451,37 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
 
             {/* Gift Reserve Management */}
             <Card className="lottery-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-lottery-jackpot" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-lottery-jackpot" />
                   Gift Reserve Fund
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Manage the gift distribution reserve
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="reserveFund">Fund Amount (PTK)</Label>
+                  <Label htmlFor="reserveFund" className="text-sm">Fund Amount (PTK)</Label>
                   <Input
                     id="reserveFund"
                     type="number"
                     placeholder="e.g., 5000"
                     value={giftReserveFundAmount}
                     onChange={(e) => setGiftReserveFundAmount(e.target.value)}
+                    className="mt-1"
                   />
                 </div>
                 <Button
                   onClick={handleFundGiftReserve}
                   disabled={isFundingReserve || !giftReserveFundAmount}
-                  className="w-full"
+                  className="w-full text-sm"
+                  size="sm"
                 >
                   {isFundingReserve ? "Funding..." : "Fund Reserve"}
                 </Button>
                 
-                <div className="text-sm text-muted-foreground space-y-1">
+                <div className="text-xs sm:text-sm text-muted-foreground space-y-1 pt-2 border-t">
                   <p>Current Reserve: Loading...</p>
                   <p>Cost Per Round: Loading...</p>
                 </div>
@@ -476,34 +491,36 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
         </TabsContent>
 
         {/* Token Management */}
-        <TabsContent value="token" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
+        <TabsContent value="token" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Authorized Burners */}
             <Card className="lottery-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-destructive" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
                   Authorized Burners
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Manage addresses that can burn tokens
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="burnerAddress">Burner Address</Label>
+                  <Label htmlFor="burnerAddress" className="text-sm">Burner Address</Label>
                   <Input
                     id="burnerAddress"
                     placeholder="0x..."
                     value={authorizedBurner}
                     onChange={(e) => setAuthorizedBurner(e.target.value)}
+                    className="mt-1 font-mono text-sm"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     onClick={() => handleAuthorizeburner(true)}
                     disabled={isAuthorizingBurner || !authorizedBurner}
-                    className="flex-1"
+                    className="flex-1 text-sm p-1"
+                    size="sm"
                   >
                     {isAuthorizingBurner ? "Processing..." : "Authorize"}
                   </Button>
@@ -511,7 +528,8 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                     onClick={() => handleAuthorizeburner(false)}
                     disabled={isAuthorizingBurner || !authorizedBurner}
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 text-sm p-1"
+                    size="sm"
                   >
                     Revoke
                   </Button>
@@ -521,30 +539,32 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
 
             {/* Authorized Transferors */}
             <Card className="lottery-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-secondary" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
                   Authorized Transferors
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Manage addresses that can transfer staked tokens
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="transferorAddress">Transferor Address</Label>
+                  <Label htmlFor="transferorAddress" className="text-sm">Transferor Address</Label>
                   <Input
                     id="transferorAddress"
                     placeholder="0x..."
                     value={authorizedTransferor}
                     onChange={(e) => setAuthorizedTransferor(e.target.value)}
+                    className="mt-1 font-mono text-sm"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     onClick={() => handleAuthorizeTransferor(true)}
                     disabled={isAuthorizingTransferor || !authorizedTransferor}
-                    className="flex-1"
+                    className="flex-1 text-sm p-1"
+                    size="sm"
                   >
                     {isAuthorizingTransferor ? "Processing..." : "Authorize"}
                   </Button>
@@ -552,7 +572,8 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                     onClick={() => handleAuthorizeTransferor(false)}
                     disabled={isAuthorizingTransferor || !authorizedTransferor}
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 text-sm p-1"
+                    size="sm"
                   >
                     Revoke
                   </Button>
@@ -561,13 +582,13 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
             </Card>
 
             {/* Emergency Withdrawal Toggle */}
-            <Card className="lottery-card md:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive">
-                  <AlertTriangle className="w-5 h-5" />
+            <Card className="lottery-card lg:col-span-2">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-destructive text-base sm:text-lg">
+                  <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
                   Emergency Withdrawal Mode
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Allow users to unstake tokens immediately without waiting period
                 </CardDescription>
               </CardHeader>
@@ -576,6 +597,8 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   onClick={handleToggleEmergencyWithdrawal}
                   disabled={isTogglingEmergencyWithdrawal}
                   variant="destructive"
+                  size="sm"
+                  className="text-sm"
                 >
                   <AlertTriangle className="w-4 h-4 mr-2" />
                   {isTogglingEmergencyWithdrawal ? "Toggling..." : "Toggle Emergency Mode"}

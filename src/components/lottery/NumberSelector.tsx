@@ -69,20 +69,23 @@ export const NumberSelector = ({
   }
 
   return (
-    <Card className="lottery-card">
+    <Card className="lottery-card w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl">
-          <Play className="w-6 h-6 text-primary" />
+        <CardTitle className="flex items-center gap-2 text-lg sm:text-2xl">
+          <Play className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
           Select Your Lucky Numbers
         </CardTitle>
-        <CardDescription className="text-muted-foreground">
+        <CardDescription className="text-sm sm:text-base text-muted-foreground">
           Choose 5 numbers from 1 to 49. The more numbers you match, the bigger your prize!
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-6">
         {/* Number Grid */}
-        <div className="grid grid-cols-7 gap-3 p-4 bg-muted/20 rounded-lg">
+        <div className="
+          grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-7 
+          gap-2 sm:gap-3 p-2 sm:p-4 bg-muted/20 rounded-lg
+        ">
           {Array.from({ length: 49 }, (_, i) => i + 1).map((number) => (
             <LotteryBall
               key={number}
@@ -95,12 +98,12 @@ export const NumberSelector = ({
           ))}
         </div>
 
-        {/* Selected Numbers Display */}
-        <div className="space-y-3">
-          <Label className="text-lg font-semibold">Your Selection:</Label>
-          <div className="flex items-center gap-3 min-h-[60px] p-4 bg-muted/20 rounded-lg">
+        {/* Selected Numbers */}
+        <div className="space-y-2 sm:space-y-3">
+          <Label className="text-base sm:text-lg font-semibold">Your Selection:</Label>
+          <div className="flex flex-wrap gap-2 sm:gap-3 min-h-[50px] sm:min-h-[60px] p-2 sm:p-4 bg-muted/20 rounded-lg">
             {selectedNumbers.length === 0 ? (
-              <span className="text-muted-foreground italic">No numbers selected</span>
+              <span className="text-muted-foreground italic text-sm sm:text-base">No numbers selected</span>
             ) : (
               selectedNumbers.map((number, index) => (
                 <LotteryBall
@@ -115,7 +118,7 @@ export const NumberSelector = ({
         </div>
 
         {/* Controls */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
             onClick={generateRandomNumbers}
@@ -138,8 +141,8 @@ export const NumberSelector = ({
         </div>
 
         {/* Bet Amount */}
-        <div className="space-y-2">
-          <Label htmlFor="bet-amount" className="text-lg font-semibold">
+        <div className="space-y-1 sm:space-y-2">
+          <Label htmlFor="bet-amount" className="text-base sm:text-lg font-semibold">
             Bet Amount (PTK):
           </Label>
           <Input
@@ -151,9 +154,9 @@ export const NumberSelector = ({
             max={maxBetAmount}
             step="0.01"
             disabled={disabled}
-            className="text-lg"
+            className="text-base sm:text-lg"
           />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Min: {minBetAmount} PTK | Max: {maxBetAmount} PTK per round
           </p>
         </div>
@@ -162,13 +165,14 @@ export const NumberSelector = ({
         <Button
           onClick={handlePlaceBet}
           disabled={disabled || selectedNumbers.length !== 5}
-          className="w-full golden-button text-lg py-6"
+          className="w-full golden-button text-base sm:text-lg py-4 sm:py-6"
           size="lg"
         >
-          <Play className="w-5 h-5 mr-2" />
+          <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
           Place Bet ({betAmount} PTK)
         </Button>
       </CardContent>
     </Card>
+
   )
 }

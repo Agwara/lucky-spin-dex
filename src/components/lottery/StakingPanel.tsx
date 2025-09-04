@@ -38,7 +38,7 @@ export const StakingPanel = ({
 
   const handleStake = () => {
     const amount = parseFloat(stakeAmount)
-    const userBalance = parseFloat(balance) / 1e18
+    const userBalance = parseFloat(balance)
     
     if (amount < parseFloat(minStakeAmount)) {
       toast.error(`Minimum stake amount is ${minStakeAmount} PTK`)
@@ -75,8 +75,8 @@ export const StakingPanel = ({
     onUnstake(unstakeAmount)
   }
 
-  const stakedBalance = stakingInfo ? parseFloat(stakingInfo.staked) / 1e18 : 0
-  const userBalance = parseFloat(balance) / 1e18
+  const stakedBalance = stakingInfo ? parseFloat(stakingInfo.staked) : 0
+  const userBalance = parseFloat(balance)
 
   return (
     <Card className="lottery-card">

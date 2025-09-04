@@ -1,14 +1,13 @@
 import { http, createConfig } from 'wagmi'
 import { mainnet, sepolia, polygon, polygonMumbai } from 'wagmi/chains'
-import { injected, metaMask, walletConnect } from 'wagmi/connectors'
+import { metaMask } from 'wagmi/connectors'
+// import { CONTRACT_ADDRESSES } from './contracts'
 
 // Configure chains - add your preferred chains
 export const config = createConfig({
   chains: [mainnet, sepolia, polygon, polygonMumbai],
   connectors: [
-    injected(),
-    metaMask(),
-    walletConnect({ projectId: 'your-project-id' }),
+    metaMask()
   ],
   transports: {
     [mainnet.id]: http(),
@@ -17,6 +16,13 @@ export const config = createConfig({
     [polygonMumbai.id]: http(),
   },
 })
+
+// Add chain configuration helper
+export const getChainConfig = (chainId: number) => {
+  const chain = config.chains.find(c => c.id === chainId)
+  if (!chain) throw new Error(`Chain ${chainId} not configured`)
+  return chain
+}
 
 declare module 'wagmi' {
   interface Register {

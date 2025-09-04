@@ -34,15 +34,12 @@ const Index = () => {
   } = useLottery()
 
   // Mock admin check - replace with actual admin check from your contract
-  const isAdmin = address?.toLowerCase() === "0x742d35cc6634c0532925a3b8d29ef515716065f1"
+  const isAdmin = address?.toLowerCase() === "0x6cC2753524B3D63203f001Ab1cF19f2b525E76b7".toLowerCase();
 
-  const [refreshing, setRefreshing] = useState(false)
+  console.log("address: ", address)
 
   const handleRefresh = async () => {
-    setRefreshing(true)
-    await refetch()
-    setTimeout(() => setRefreshing(false), 1000)
-    toast.success("Data refreshed!")
+    await refetch();
   }
 
   const handlePlaceBet = async (numbers: number[], amount: string) => {
@@ -51,16 +48,22 @@ const Index = () => {
       return
     }
 
-    const betAmount = parseFloat(amount)
-    const userAllowance = parseFloat(allowance)
+    try {
+      const betAmount = parseFloat(amount)
+      const userAllowance = parseFloat(allowance)
 
-    if (userAllowance < betAmount) {
-      toast.info("Approving tokens for betting...")
-      await approveBetting((betAmount * 2).toString()) // Approve 2x for future bets
-      return
+      if (userAllowance < betAmount) {
+        toast.info("Approving tokens for betting...")
+        await approveBetting((betAmount * 2).toString()) // Approve 2x for future bets
+        // After approval, the user needs to place the bet again
+        toast.info("Approval complete! Please place your bet again.")
+        return
+      }
+
+      await placeBet(numbers, amount)
+    } catch (error) {
+      console.error('Bet placement failed:', error)
     }
-
-    await placeBet(numbers, amount)
   }
 
   return (
@@ -68,25 +71,25 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col justify-between md:flex-row md:items-center gap-[10px]">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold jackpot-glow">Lucky Spin DEX</h1>
+                <h1 className="text-3xl font-bold jackpot-glow">Crystal Chain</h1>
                 <p className="text-muted-foreground">Decentralized Lottery Platform</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 justify-between">
               <Button
                 onClick={handleRefresh}
-                disabled={refreshing}
+                disabled={isLoading}
                 variant="outline"
                 size="sm"
               >
-                <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               
@@ -106,7 +109,7 @@ const Index = () => {
           <div className="max-w-2xl mx-auto space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-4xl font-bold jackpot-glow">
-                🎰 Welcome to Lucky Spin DEX! 🎰
+                🎰 Welcome to Crystal Chain! 🎰
               </h2>
               <p className="text-xl text-muted-foreground">
                 The ultimate decentralized lottery experience. Pick your numbers, place your bets, and win big!
@@ -156,7 +159,7 @@ const Index = () => {
           </div>
         ) : (
           /* Connected State - Main App */
-          <div className="space-y-8">
+          <div className="space-y-8 w-99%">
             {/* Current Round - Always visible */}
             <CurrentRound round={currentRound} loading={isLoading} />
 
@@ -194,6 +197,7 @@ const Index = () => {
                   </div>
                   <div>
                     <WalletConnect />
+                    {/* <SendTransaction /> */}
                   </div>
                 </div>
               </TabsContent>
@@ -236,7 +240,7 @@ const Index = () => {
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-2">
               <Sparkles className="w-6 h-6 text-primary" />
-              <span className="text-xl font-bold">Lucky Spin DEX</span>
+              <span className="text-xl font-bold">Crystal Chain</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Powered by Ethereum • Chainlink VRF • Built with ❤️ for the community
