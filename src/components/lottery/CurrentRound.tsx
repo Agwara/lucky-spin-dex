@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, Users, DollarSign, Trophy } from "lucide-react"
+import { Clock, Users, DollarSign, Trophy, GiftIcon } from "lucide-react"
 import { LotteryBall } from "./LotteryBall"
 import { useState, useRef, useEffect } from "react"
 
@@ -18,9 +18,10 @@ interface Round {
 interface CurrentRoundProps {
   round: Round | null
   loading?: boolean
+  giftReserveStatus: string
 }
 
-export const CurrentRound = ({ round, loading = false }: CurrentRoundProps) => {
+export const CurrentRound = ({ round, loading = false, giftReserveStatus }: CurrentRoundProps) => {
   if (loading) {
     return (
       <Card className="lottery-card">
@@ -108,6 +109,16 @@ export const CurrentRound = ({ round, loading = false }: CurrentRoundProps) => {
               </CardDescription>
             </div>
 
+            <div className="hidden md:flex items-center gap-3 p-4 bg-muted/20 rounded-lg col-span-2 md:col-span-3">
+              <GiftIcon className="w-8 h-8 text-lottery-jackpot" />
+              <div>
+                <div className="text-sm text-muted-foreground">Gift Reserve</div>
+                <div className="font-semibold text-2xl text-lottery-jackpot">
+                  {parseFloat(giftReserveStatus)} PTK
+                </div>
+              </div>
+            </div>
+
             <div className="text-right">
               <div className="text-3xl font-bold text-primary">
                 {formatTime(remaining)}
@@ -120,6 +131,15 @@ export const CurrentRound = ({ round, loading = false }: CurrentRoundProps) => {
 
         <CardContent className="relative space-y-6">
           {/* Winning Numbers */}
+          <div className="md:hidden flex justify-center items-center gap-3 p-4 bg-muted/20 rounded-lg col-span-2 md:col-span-3">
+            <GiftIcon className="w-8 h-8 text-lottery-jackpot" />
+            <div>
+              <div className="text-sm text-muted-foreground">Gift Reserve</div>
+              <div className="font-semibold text-2xl text-lottery-jackpot">
+                {parseFloat(giftReserveStatus)} PTK
+              </div>
+            </div>
+          </div>
           {round.numbersDrawn && (
             <div className="space-y-3">
               <h3 className="text-2xl font-bold text-center jackpot-glow">
@@ -161,7 +181,7 @@ export const CurrentRound = ({ round, loading = false }: CurrentRoundProps) => {
               <div>
                 <div className="text-sm text-muted-foreground">Total Bets</div>
                 <div className="font-semibold">
-                  {parseFloat(round.totalBets) / 1e18} PTK
+                  {parseFloat(round.totalBets)} PTK
                 </div>
               </div>
             </div>
@@ -171,7 +191,7 @@ export const CurrentRound = ({ round, loading = false }: CurrentRoundProps) => {
               <div>
                 <div className="text-sm text-muted-foreground">Prize Pool</div>
                 <div className="font-semibold text-2xl text-lottery-jackpot">
-                  {parseFloat(round.totalPrizePool) / 1e18} PTK
+                  {parseFloat(round.totalPrizePool)} PTK
                 </div>
               </div>
             </div>

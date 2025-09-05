@@ -1,108 +1,115 @@
-import { useEffect } from 'react'
-import { useWatchContractEvent } from 'wagmi'
-import { toast } from 'sonner'
-import { CONTRACT_ADDRESSES, LOTTERY_CORE_ABI, PLATFORM_TOKEN_ABI } from '../lib/contracts'
-import { formatEther } from 'viem'
+import { useWatchContractEvent } from "wagmi";
+import { toast } from "sonner";
+import {
+  CONTRACT_ADDRESSES,
+  LOTTERY_CORE_ABI,
+  PLATFORM_TOKEN_ABI,
+} from "../lib/contracts";
+import { formatEther } from "viem";
 
-export const useLotteryEvents = (userAddress?: string, onEventReceived?: () => void) => {
-  // Watch for bet placed events
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-    abi: LOTTERY_CORE_ABI,
-    eventName: 'BetPlaced',
-    onLogs(logs) {
-      logs.forEach((log:any) => {
-        const { user, numbers, amount, roundId } = log.args
-        if (user?.toLowerCase() === userAddress?.toLowerCase()) {
+export const useLotteryEvents = (
+  userAddress?: string,
+  onEventReceived?: () => void
+) => {
+  const normalize = (val?: string) => val?.toLowerCase();
+  const currentUser = normalize(userAddress);
+
+  const handleEvent = (eventHandler: (log: any) => void) => (logs: any[]) => {
+    logs.forEach((log) => {
+      eventHandler(log);
+      onEventReceived?.();
+    });
+  };
+
+  const eventConfigs = [
+    {
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+      abi: LOTTERY_CORE_ABI,
+      eventName: "BetPlaced",
+      handler: (log: any) => {
+        const { user, numbers, amount, roundId } = log.args;
+        if (normalize(user) === currentUser) {
           toast.success(
-            `Bet placed for Round ${roundId}: [${numbers?.join(', ')}] - ${formatEther(amount || 0n)} PTK`
-          )
-          onEventReceived?.()
+            `Bet placed for Round ${roundId}: [${numbers?.join(
+              ", "
+            )}] - ${formatEther(amount || 0n)} PTK`
+          );
         }
-      })
+      },
     },
-  })
-
-  // Watch for numbers drawn events
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-    abi: LOTTERY_CORE_ABI,
-    eventName: 'NumbersDrawn',
-    onLogs(logs) {
-      logs.forEach((log:any) => {
-        const { roundId, winningNumbers } = log.args
+    {
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+      abi: LOTTERY_CORE_ABI,
+      eventName: "NumbersDrawn",
+      handler: (log: any) => {
+        const { roundId, winningNumbers } = log.args;
         toast.info(
-          `Round ${roundId} Results: [${winningNumbers?.join(', ')}]`,
+          `Round ${roundId} Results: [${winningNumbers?.join(", ")}]`,
           {
-            duration: 10000, // Show longer for results
+            duration: 10000,
           }
-        )
-        onEventReceived?.()
-      })
+        );
+      },
     },
-  })
-
-  // Watch for winnings claimed events
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-    abi: LOTTERY_CORE_ABI,
-    eventName: 'WinningsClaimed',
-    onLogs(logs) {
-      logs.forEach((log:any) => {
-        const { user, amount, roundId, matchCount } = log.args
-        if (user?.toLowerCase() === userAddress?.toLowerCase()) {
+    {
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+      abi: LOTTERY_CORE_ABI,
+      eventName: "WinningsClaimed",
+      handler: (log: any) => {
+        const { user, amount, roundId, matchCount } = log.args;
+        if (normalize(user) === currentUser) {
           toast.success(
-            `🎉 Winnings claimed! ${formatEther(amount || 0n)} PTK for ${matchCount} matches in Round ${roundId}`
-          )
-          onEventReceived?.()
+            `🎉 Winnings claimed! ${formatEther(
+              amount || 0n
+            )} PTK for ${matchCount} matches in Round ${roundId}`
+          );
         }
-      })
+      },
     },
-  })
-
-  // Watch for round started events
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-    abi: LOTTERY_CORE_ABI,
-    eventName: 'RoundStarted',
-    onLogs(logs) {
-      logs.forEach((log:any) => {
-        const { roundId } = log.args
-        toast.info(`🎰 New Round ${roundId} Started!`)
-        onEventReceived?.()
-      })
+    {
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+      abi: LOTTERY_CORE_ABI,
+      eventName: "RoundStarted",
+      handler: (log: any) => {
+        const { roundId } = log.args;
+        toast.info(`🎰 New Round ${roundId} Started!`);
+      },
     },
-  })
-
-  // Watch for staking events
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
-    abi: PLATFORM_TOKEN_ABI,
-    eventName: 'TokensStaked',
-    onLogs(logs) {
-      logs.forEach((log:any) => {
-        const { user, amount } = log.args
-        if (user?.toLowerCase() === userAddress?.toLowerCase()) {
-          toast.success(`Staked ${formatEther(amount || 0n)} PTK successfully!`)
-          onEventReceived?.()
+    {
+      address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+      abi: PLATFORM_TOKEN_ABI,
+      eventName: "TokensStaked",
+      handler: (log: any) => {
+        const { user, amount } = log.args;
+        if (normalize(user) === currentUser) {
+          toast.success(
+            `Staked ${formatEther(amount || 0n)} PTK successfully!`
+          );
         }
-      })
+      },
     },
-  })
-
-  // Watch for unstaking events
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
-    abi: PLATFORM_TOKEN_ABI,
-    eventName: 'TokensUnstaked',
-    onLogs(logs) {
-      logs.forEach((log:any) => {
-        const { user, amount } = log.args
-        if (user?.toLowerCase() === userAddress?.toLowerCase()) {
-          toast.success(`Unstaked ${formatEther(amount || 0n)} PTK successfully!`)
-          onEventReceived?.()
+    {
+      address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+      abi: PLATFORM_TOKEN_ABI,
+      eventName: "TokensUnstaked",
+      handler: (log: any) => {
+        const { user, amount } = log.args;
+        if (normalize(user) === currentUser) {
+          toast.success(
+            `Unstaked ${formatEther(amount || 0n)} PTK successfully!`
+          );
         }
-      })
+      },
     },
-  })
-}
+  ];
+
+  // Register watchers dynamically
+  eventConfigs.forEach(({ address, abi, eventName, handler }) => {
+    useWatchContractEvent({
+      address,
+      abi,
+      eventName: eventName as any,
+      onLogs: handleEvent(handler),
+    });
+  });
+};

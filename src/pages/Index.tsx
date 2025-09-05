@@ -13,6 +13,7 @@ import { UserStats } from "@/components/lottery/UserStats"
 import { AdminPanel } from "@/components/admin/AdminPanel"
 import { useLottery } from "@/hooks/useLottery"
 import { toast } from "sonner"
+import { useLotteryEvents } from "@/hooks/useLotteryEvent"
 
 const Index = () => {
   const { isConnected, address } = useAccount()
@@ -26,6 +27,7 @@ const Index = () => {
     allowance,
     isLoading,
     isWritePending,
+    giftReserveStatus,
     approveBetting,
     placeBet,
     stakeTokens,
@@ -33,10 +35,11 @@ const Index = () => {
     refetch
   } = useLottery()
 
+  // Automatically set up in your main component
+  useLotteryEvents(address, refetch)
+
   // Mock admin check - replace with actual admin check from your contract
   const isAdmin = address?.toLowerCase() === "0x6cC2753524B3D63203f001Ab1cF19f2b525E76b7".toLowerCase();
-
-  console.log("address: ", address)
 
   const handleRefresh = async () => {
     await refetch();
@@ -161,7 +164,7 @@ const Index = () => {
           /* Connected State - Main App */
           <div className="space-y-8 w-99%">
             {/* Current Round - Always visible */}
-            <CurrentRound round={currentRound} loading={isLoading} />
+            <CurrentRound giftReserveStatus={giftReserveStatus?.reserve} round={currentRound} loading={isLoading} />
 
             <Tabs defaultValue="play" className="w-full">
               <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>

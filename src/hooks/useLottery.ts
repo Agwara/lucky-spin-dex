@@ -11,6 +11,7 @@ import {
   CONTRACT_ADDRESSES,
   LOTTERY_CORE_ABI,
   PLATFORM_TOKEN_ABI,
+  GIFT_CONTRACT_ABI,
 } from "../lib/contracts";
 
 export const useLottery = () => {
@@ -95,6 +96,14 @@ export const useLottery = () => {
     query: { enabled: isConnected && !!address },
   });
 
+  const giftReserveStatusQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+    abi: GIFT_CONTRACT_ABI,
+    functionName: "getGiftReserveStatus",
+    account: address,
+    query: { enabled: isConnected },
+  });
+
   // -----------------------------------
   // Handle errors
   // -----------------------------------
@@ -110,6 +119,7 @@ export const useLottery = () => {
     allowanceQuery.error ||
     minStakeAmountQuery.error ||
     isEligibleQuery.error;
+  giftReserveStatusQuery.error;
 
   useEffect(() => {
     console.log("readError: ", readError);
@@ -265,6 +275,7 @@ export const useLottery = () => {
         allowanceQuery.refetch(),
         minStakeAmountQuery.refetch(),
         isEligibleQuery.refetch(),
+        giftReserveStatusQuery.refetch(),
       ]);
       toast.success("Data refreshed!");
     } catch {
@@ -273,14 +284,6 @@ export const useLottery = () => {
       setIsRefetching(false);
     }
   };
-
-  console.log("currentRoundQuery: ", currentRoundQuery.data);
-  console.log("userStatsQuery: ", userStatsQuery.data);
-  console.log("tokenBalanceQuery: ", tokenBalanceQuery.data);
-  console.log("stakingInfoQuery: ", stakingInfoQuery.data);
-  console.log("allowanceQuery: ", allowanceQuery.data);
-  console.log("minStakeAmountQuery: ", minStakeAmountQuery.data);
-  console.log("isEligibleQuery: ", isEligibleQuery.data);
 
   // -----------------------------------
   // Format data
@@ -292,6 +295,7 @@ export const useLottery = () => {
   const allowance: any = allowanceQuery.data ?? 0n;
   const minStakeAmount: any = minStakeAmountQuery.data ?? 0n;
   const isEligible: any = isEligibleQuery.data ?? false;
+  const giftReserveStatus: any = giftReserveStatusQuery.data;
 
   const formattedCurrentRound = currentRound
     ? {
@@ -326,6 +330,13 @@ export const useLottery = () => {
       }
     : null;
 
+  const formattedGiftReserve = giftReserveStatus
+    ? {
+        reserve: formatEther(giftReserveStatus[0]),
+        costPerRound: formatEther(giftReserveStatus[1]),
+      }
+    : null;
+
   // -----------------------------------
   // Return hook data
   // -----------------------------------
@@ -337,6 +348,7 @@ export const useLottery = () => {
     allowance: formatEther(allowance),
     minStakeAmount: formatEther(minStakeAmount),
     isEligible: Boolean(isEligible),
+    giftReserveStatus: formattedGiftReserve,
 
     isLoading:
       currentRoundQuery.isLoading ||
@@ -346,6 +358,7 @@ export const useLottery = () => {
       allowanceQuery.isLoading ||
       minStakeAmountQuery.isLoading ||
       isEligibleQuery.isLoading ||
+      giftReserveStatusQuery.isLoading ||
       isRefetching,
 
     isWritePending: isWritePending || isConfirming,
