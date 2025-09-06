@@ -73,6 +73,16 @@ export const useAdmin = () => {
     }
   };
 
+  // Helper function that directly queries the chain
+  const useRound = (roundId: number) => {
+    return useReadContract({
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+      abi: LOTTERY_CORE_ABI,
+      functionName: "getRound",
+      args: [BigInt(roundId)],
+    });
+  };
+
   return {
     // Data
     giftReserveStatus,
@@ -85,5 +95,6 @@ export const useAdmin = () => {
     endCurrentRound,
     fundGiftReserve,
     distributeGifts,
+    useRound,
   };
 };

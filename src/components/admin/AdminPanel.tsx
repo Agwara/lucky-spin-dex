@@ -19,6 +19,7 @@ import {
   Users
 } from "lucide-react"
 import { toast } from "sonner"
+import { useAdmin } from "@/hooks/useAdmin"
 
 interface AdminPanelProps {
   isAdmin: boolean
@@ -27,7 +28,10 @@ interface AdminPanelProps {
 
 export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const { address } = useAccount()
-  
+  const { useRound } = useAdmin()
+ 
+  const { data: round, error, isError } = useRound(1);
+
   // Core Contract Admin States
   const [maxPayoutAmount, setMaxPayoutAmount] = useState("")
   const [isSchedulingPayout, setIsSchedulingPayout] = useState(false)
@@ -51,6 +55,17 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const [authorizedTransferor, setAuthorizedTransferor] = useState("")
   const [isAuthorizingTransferor, setIsAuthorizingTransferor] = useState(false)
   const [isTogglingEmergencyWithdrawal, setIsTogglingEmergencyWithdrawal] = useState(false)
+
+  useEffect(() => {
+  if (round) {
+    console.log("Round 5 data:", round);
+  }
+
+  if (isError) {
+    console.error("Error fetching round:", error);
+    toast.error(`Failed to fetch round: ${error.message}`);
+  }
+}, [round, isError, error]);
 
   if (!isAdmin) {
     return (
