@@ -16,7 +16,9 @@ import {
   Play, 
   AlertTriangle,
   Clock,
-  Users
+  Users,
+  History,
+  Info
 } from "lucide-react"
 import { toast } from "sonner"
 import { useAdmin } from "@/hooks/useAdmin"
@@ -28,9 +30,9 @@ interface AdminPanelProps {
 
 export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const { address } = useAccount()
-  const { useRound } = useAdmin()
+  const { getRound, roundData, isLoadingRound, roundError } = useAdmin();
  
-  const { data: round, error, isError } = useRound(1);
+  const [roundeID, setRoundId] = useState("")
 
   // Core Contract Admin States
   const [maxPayoutAmount, setMaxPayoutAmount] = useState("")
@@ -56,16 +58,14 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const [isAuthorizingTransferor, setIsAuthorizingTransferor] = useState(false)
   const [isTogglingEmergencyWithdrawal, setIsTogglingEmergencyWithdrawal] = useState(false)
 
-  useEffect(() => {
-  if (round) {
-    console.log("Round 5 data:", round);
-  }
+  console.log("roundData: ", roundData)
+  console.log("isLoadingRound: ", isLoadingRound)
+  console.log("roundError: ", roundError)
 
-  if (isError) {
-    console.error("Error fetching round:", error);
-    toast.error(`Failed to fetch round: ${error.message}`);
-  }
-}, [round, isError, error]);
+  useEffect(() => {
+    getRound(1);
+  }, [])
+
 
   if (!isAdmin) {
     return (
@@ -245,6 +245,19 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
     }
   }
 
+  const handleFetchRound = () => {
+    const roundIdTemp = parseInt(roundeID);
+    if (isNaN(roundIdTemp) || roundIdTemp <= 0) {
+      toast.error('Please enter a valid round ID');
+      return;
+    }
+    getRound(roundIdTemp);
+  };
+
+  const formatTimestamp = (timestamp: number) => {
+    return new Date(Number(timestamp) * 1000).toLocaleString();
+  };
+
   return (
     <div className="space-y-4 px-4 sm:px-6 lg:px-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -259,7 +272,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
       </div>
 
       <Tabs defaultValue="core" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-auto">
+        <TabsList className="grid w-full grid-cols-4 h-auto">
           <TabsTrigger value="core" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
             <Settings className="w-4 h-4" />
             <span className="text-xs sm:text-sm">Core System</span>
@@ -271,6 +284,11 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
           <TabsTrigger value="token" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
             <DollarSign className="w-4 h-4" />
             <span className="text-xs sm:text-sm">Token Settings</span>
+          </TabsTrigger>
+
+          <TabsTrigger value="history" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
+            <History className="w-4 h-4" />
+            <span className="text-xs sm:text-sm">History</span>
           </TabsTrigger>
         </TabsList>
 
@@ -620,6 +638,113 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                 </Button>
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {/* Max Payout Management */}
+            <Card className="lottery-card">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <History className="w-4 h-4 sm:w-5 sm:h-5 text-lottery-jackpot" />
+                  Get Round Data
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="roundId" className="text-sm">Round Number</Label>
+                  <Input
+                    id="roundId"
+                    type="number"
+                    placeholder="e.g., Enter Round Number"
+                    value={roundeID}
+                    onChange={(e) => setRoundId(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    onClick={handleFetchRound}
+                    disabled={isLoadingRound}
+                    className="flex-1 text-sm p-1"
+                    size="sm"
+                  >
+                    <Clock className="w-4 h-4 mr-2" />
+                    {isLoadingRound ? "Fetching Round Data..." : "Fetch Round Data"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {
+              isLoadingRound ?
+              <Card className="lottery-card">
+                <CardHeader>
+                  <div className="animate-pulse space-y-2">
+                    <div className="h-6 bg-muted rounded w-3/4"></div>
+                    <div className="h-4 bg-muted rounded w-1/2"></div>
+                  </div>
+                </CardHeader>
+              </Card> : roundError || !roundData ? 
+              <Card className="lottery-card">
+                <CardContent className="space-y-4 flex h-[100%] justify-center items-center">
+                  <div className="font-semibold text-red-500">Error Loading Data</div>
+                </CardContent>
+              </Card> :
+              <Card className="lottery-card">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <Info className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
+                    Round Information
+                  </CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">
+                    Information for round {roundData?.roundId}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <strong>Round ID:</strong> {roundData.roundId.toString()}
+                    </div>
+                    <div>
+                      <strong>Start Time:</strong> {formatTimestamp(roundData.startTime)}
+                    </div>
+                    <div>
+                      <strong>End Time:</strong> {formatTimestamp(roundData.endTime)}
+                    </div>
+                    <div>
+                      <strong>Numbers Drawn:</strong> {roundData.numbersDrawn ? 'Yes' : 'No'}
+                    </div>
+                    <div>
+                      <strong>Total Bets:</strong> {roundData.totalBets.toString()} PTK
+                    </div>
+                    <div>
+                      <strong>Total Prize Pool:</strong> {roundData.totalPrizePool.toString()} PTK
+                    </div>
+                    <div>
+                      <strong>Gifts Distributed:</strong> {roundData.giftsDistributed ? 'Yes' : 'No'}
+                    </div>
+                  </div>
+
+                {/* Winning Numbers */}
+                  <div className="mt-4">
+                    <strong>Winning Numbers:</strong>
+                    <div className="flex gap-2 mt-2">
+                      {roundData?.winningNumbers.map((num, index) => (
+                        <span 
+                          key={index}
+                          className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
+                        >
+                          {num.toString()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            }
+
           </div>
         </TabsContent>
       </Tabs>
