@@ -5,6 +5,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
+import { waitForTransactionReceipt } from "wagmi/actions";
 import { parseEther, formatEther } from "viem";
 import { toast } from "sonner";
 import {
@@ -13,6 +14,7 @@ import {
   PLATFORM_TOKEN_ABI,
   GIFT_CONTRACT_ABI,
 } from "../lib/contracts";
+import { config } from "../lib/web3"; // Your wagmi config
 
 export const useLottery = () => {
   const { address, isConnected, chain } = useAccount();
@@ -21,6 +23,7 @@ export const useLottery = () => {
   // Write contract
   const {
     writeContract,
+    writeContractAsync,
     data: writeData,
     isPending: isWritePending,
     error: writeError,
@@ -34,6 +37,13 @@ export const useLottery = () => {
   // -------------------------------
   // Individual reads (split queries)
   // -------------------------------
+
+  const isPausedQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+    abi: PLATFORM_TOKEN_ABI,
+    functionName: "paused",
+    query: { enabled: isConnected },
+  });
 
   const currentRoundQuery = useReadContract({
     address: CONTRACT_ADDRESSES.CORE_CONTRACT,
@@ -140,7 +150,8 @@ export const useLottery = () => {
     isEligibleQuery.error ||
     giftReserveStatusQuery.error ||
     maxPayoutPerRoundQuery.error ||
-    coreContractTokenBalanceQuery.error;
+    coreContractTokenBalanceQuery.error ||
+    isPausedQuery.error;
 
   useEffect(() => {
     console.log("readError: ", readError);
@@ -205,9 +216,15 @@ export const useLottery = () => {
       return;
     }
 
+    if (isPaused) {
+      toast.error("Staking is currently paused. Please try again later.");
+      return;
+    }
+
     try {
       const amountBigInt = parseEther(amount);
-      await writeContract({
+
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
         abi: PLATFORM_TOKEN_ABI,
         functionName: "stake",
@@ -215,7 +232,11 @@ export const useLottery = () => {
         account: address,
         chain,
       });
-      toast.success("Staking transaction submitted!");
+
+      // Wait for the transaction to be mined
+      await waitForTransactionReceipt(config, { hash });
+
+      toast.success("Staking completed successfully!");
     } catch (error: any) {
       toast.error(`Staking failed: ${error.shortMessage || error.message}`);
       throw error;
@@ -228,9 +249,14 @@ export const useLottery = () => {
       return;
     }
 
+    if (isPaused) {
+      toast.error("unStaking is currently paused. Please try again later.");
+      return;
+    }
+
     try {
       const amountBigInt = parseEther(amount);
-      await writeContract({
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
         abi: PLATFORM_TOKEN_ABI,
         functionName: "unstake",
@@ -238,7 +264,9 @@ export const useLottery = () => {
         account: address,
         chain,
       });
-      toast.success("Unstaking transaction submitted!");
+      // Wait for the transaction to be mined
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Unstaking completed successfully!");
     } catch (error: any) {
       toast.error(`Unstaking failed: ${error.shortMessage || error.message}`);
       throw error;
@@ -299,6 +327,7 @@ export const useLottery = () => {
         giftReserveStatusQuery.refetch(),
         maxPayoutPerRoundQuery.refetch(),
         coreContractTokenBalanceQuery.refetch(),
+        isPausedQuery.refetch(),
       ]);
       toast.success("Data refreshed!");
     } catch {
@@ -322,6 +351,7 @@ export const useLottery = () => {
   const maxPayoutPerRound: any = maxPayoutPerRoundQuery.data ?? 0n;
   const coreContractTokenBalance: any =
     coreContractTokenBalanceQuery.data ?? 0n;
+  const isPaused: any = isPausedQuery.data ?? false;
 
   const formattedCurrentRound = currentRound
     ? {
@@ -377,6 +407,7 @@ export const useLottery = () => {
     giftReserveStatus: formattedGiftReserve,
     maxPayoutPerRound: formatEther(maxPayoutPerRound),
     coreContractTokenBalance: formatEther(coreContractTokenBalance),
+    isPaused: Boolean(isPaused),
 
     isLoading:
       currentRoundQuery.isLoading ||
@@ -389,7 +420,8 @@ export const useLottery = () => {
       giftReserveStatusQuery.isLoading ||
       maxPayoutPerRoundQuery.isLoading ||
       coreContractTokenBalanceQuery.isLoading ||
-      isRefetching,
+      isRefetching ||
+      isPausedQuery.isLoading,
 
     isWritePending: isWritePending || isConfirming,
 

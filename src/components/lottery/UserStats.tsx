@@ -43,8 +43,8 @@ export const UserStats = ({ stats, loading = false }: UserStatsProps) => {
     )
   }
 
-  const totalBets = parseFloat(stats.totalBets) / 1e18
-  const totalWinnings = parseFloat(stats.totalWinnings) / 1e18
+  const totalBets = parseFloat(stats.totalBets)
+  const totalWinnings = parseFloat(stats.totalWinnings)
   const winRate = totalBets > 0 ? ((totalWinnings / totalBets) * 100) : 0
 
   return (

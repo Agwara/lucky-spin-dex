@@ -55,7 +55,7 @@ export const StakingPanel = ({
 
   const handleUnstake = () => {
     const amount = parseFloat(unstakeAmount)
-    const stakedBalance = stakingInfo ? parseFloat(stakingInfo.staked) / 1e18 : 0
+    const stakedBalance = stakingInfo ? parseFloat(stakingInfo.staked) : 0
     
     if (amount <= 0) {
       toast.error("Please enter a valid amount")

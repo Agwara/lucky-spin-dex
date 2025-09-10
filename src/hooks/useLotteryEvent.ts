@@ -148,11 +148,39 @@ export const useLotteryEvents = (
       handler: (log: any) => {
         const { newMaxPayout } = log.args;
         toast.success(
-          `Max Payout Updated of ${newMaxPayout}PTK was scheduled successfully!`,
+          `Max Payout Updated of ${formatEther(
+            newMaxPayout
+          )} PTK was scheduled successfully!`,
           {
             position: "top-right",
           }
         );
+      },
+    },
+
+    {
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+      abi: LOTTERY_CORE_ABI,
+      eventName: "Paused",
+      handler: (log: any) => {
+        // const { sender } = log.args;
+        console.log("sender: ", log.args);
+        toast.success(`Lottery Game Paused successfully!`, {
+          position: "top-right",
+        });
+      },
+    },
+
+    {
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+      abi: LOTTERY_CORE_ABI,
+      eventName: "Unpaused",
+      handler: (log: any) => {
+        // const { sender } = log.args;
+        console.log("sender: ", log.args);
+        toast.success(`Lottery Game Unpaused successfully!`, {
+          position: "top-right",
+        });
       },
     },
   ];

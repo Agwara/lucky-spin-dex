@@ -1,4 +1,5 @@
 import { useWriteContract, useReadContract, useAccount } from "wagmi";
+import { waitForTransactionReceipt } from "wagmi/actions";
 import { parseEther, formatEther } from "viem";
 import { toast } from "sonner";
 import {
@@ -6,8 +7,10 @@ import {
   LOTTERY_CORE_ABI,
   GIFT_CONTRACT_ABI,
   ADMIN_CONTRACT_ABI,
+  PLATFORM_TOKEN_ABI,
 } from "../lib/contracts";
 import { useState } from "react";
+import { config } from "../lib/web3";
 
 interface RoundData {
   roundId: number; // Instead of bigint
@@ -23,8 +26,11 @@ interface RoundData {
 }
 
 export const useAdmin = () => {
-  const { writeContract, isPending, error } = useWriteContract();
+  const { writeContract, writeContractAsync, isPending, error } =
+    useWriteContract();
   const { address, chain } = useAccount();
+  const [isPausing, setIsPausing] = useState(false);
+  const [isUnpausing, setIsUnpausing] = useState(false);
 
   // State for managing round queries
   const [currentRoundId, setCurrentRoundId] = useState<number | null>(null);
@@ -146,6 +152,7 @@ export const useAdmin = () => {
         account: address,
         chain: chain,
       });
+
       toast.success("Set max payout transaction submitted!!");
     } catch (error: any) {
       toast.error(
@@ -158,7 +165,7 @@ export const useAdmin = () => {
   const emergencyWithdraw = async (amount: string) => {
     try {
       const amountBigInt = parseEther(amount);
-      await writeContract({
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
         abi: ADMIN_CONTRACT_ABI,
         functionName: "emergencyWithdraw",
@@ -166,12 +173,121 @@ export const useAdmin = () => {
         account: address,
         chain: chain,
       });
-      toast.success("Emergency withdraw transaction submitted!!");
+      // Wait for the transaction to be mined
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Emergency withdraw transaction successful!");
     } catch (error: any) {
       toast.error(
         `Emergency withdraw failed: ${error.shortMessage || error.message}`
       );
       throw error;
+    }
+  };
+
+  const pauseLottery = async () => {
+    let tokenPaused = false;
+    setIsPausing(true);
+
+    try {
+      // First, pause the platform token and wait for confirmation
+      const tokenTxHash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+        abi: PLATFORM_TOKEN_ABI,
+        functionName: "pause",
+        account: address,
+        chain: chain,
+      });
+
+      // Wait for token pause to be confirmed
+      await waitForTransactionReceipt(config, {
+        hash: tokenTxHash,
+      });
+      tokenPaused = true;
+
+      // Then pause the lottery through admin contract
+      const lotteryTxHash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
+        abi: ADMIN_CONTRACT_ABI,
+        functionName: "pause", // This should call lotteryCore.pause()
+        account: address,
+        chain: chain,
+      });
+
+      // Wait for lottery pause confirmation
+      await waitForTransactionReceipt(config, {
+        hash: lotteryTxHash,
+      });
+
+      toast.success("System paused successfully!");
+    } catch (error: any) {
+      // If lottery pause fails but token was paused, try to rollback
+      if (tokenPaused) {
+        try {
+          const rollbackTxHash = await writeContractAsync({
+            address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+            abi: PLATFORM_TOKEN_ABI,
+            functionName: "unpause",
+            account: address,
+            chain: chain,
+          });
+
+          await waitForTransactionReceipt(config, {
+            hash: rollbackTxHash,
+          });
+
+          toast.warning("Token pause rolled back due to lottery pause failure");
+        } catch (rollbackError) {
+          toast.error(
+            "Critical: Token paused but lottery pause failed. Manual intervention required."
+          );
+          console.error("Rollback failed:", rollbackError);
+        }
+      }
+
+      toast.error(
+        `Pause transaction failed: ${error.shortMessage || error.message}`
+      );
+      throw error;
+    } finally {
+      setIsPausing(false);
+    }
+  };
+
+  const unPauseLottery = async () => {
+    setIsUnpausing(true);
+    try {
+      const lotteryTxHash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
+        abi: ADMIN_CONTRACT_ABI,
+        functionName: "unpause",
+        account: address,
+        chain: chain,
+      });
+
+      await waitForTransactionReceipt(config, {
+        hash: lotteryTxHash,
+      });
+
+      const tokenTxHash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+        abi: PLATFORM_TOKEN_ABI,
+        functionName: "unpause",
+        account: address,
+        chain: chain,
+      });
+
+      await waitForTransactionReceipt(config, {
+        hash: tokenTxHash,
+      });
+
+      toast.success("System unpaused successfully!");
+    } catch (error: any) {
+      toast.error(
+        `Unpause transaction failed: ${error.shortMessage || error.message}`
+      );
+      throw error;
+    } finally {
+      setIsUnpausing(false);
     }
   };
 
@@ -200,6 +316,8 @@ export const useAdmin = () => {
     isLoadingRound,
     adminError: error,
     roundError,
+    isPausing,
+    isUnpausing,
 
     // Functions
     getRound,
@@ -209,5 +327,7 @@ export const useAdmin = () => {
     scheduleMaxPayoutChange,
     setMaxPayoutPerRound,
     emergencyWithdraw,
+    unPauseLottery,
+    pauseLottery,
   };
 };

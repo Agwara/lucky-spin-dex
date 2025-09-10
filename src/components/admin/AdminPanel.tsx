@@ -33,7 +33,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const { address } = useAccount()
   const { giftReserveStatus, maxPayoutPerRound, coreContractTokenBalance } = useLottery()
   const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw,
-      scheduleMaxPayoutChange, setMaxPayoutPerRound } = useAdmin();
+      scheduleMaxPayoutChange, setMaxPayoutPerRound, pauseLottery, unPauseLottery, isUnpausing, isPausing } = useAdmin();
  
   const [roundeID, setRoundId] = useState("0")
 
@@ -41,8 +41,6 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const [maxPayoutAmount, setMaxPayoutAmount] = useState("")
   const [isSchedulingPayout, setIsSchedulingPayout] = useState(false)
   const [isSettingPayout, setIsSettingPayout] = useState(false)
-  const [isPausing, setIsPausing] = useState(false)
-  const [isUnpausing, setIsUnpausing] = useState(false)
   const [emergencyWithdrawAmount, setEmergencyWithdrawAmount] = useState("")
   const [isEmergencyWithdraw, setIsEmergencyWithdraw] = useState(false)
 
@@ -103,7 +101,6 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
     }
     setIsSettingPayout(true)
     try {
-      // TODO: Integrate with smart contract
       await setMaxPayoutPerRound(maxPayoutAmount)
     } catch (error) {
       toast.error("Failed to update max payout")
@@ -113,29 +110,12 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   const handlePause = async () => {
-    setIsPausing(true)
-    try {
-      // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      toast.success("System paused successfully")
-    } catch (error) {
-      toast.error("Failed to pause system")
-    } finally {
-      setIsPausing(false)
-    }
+    await pauseLottery();
   }
 
   const handleUnpause = async () => {
-    setIsUnpausing(true)
-    try {
-      // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      toast.success("System unpaused successfully")
-    } catch (error) {
-      toast.error("Failed to unpause system")
-    } finally {
-      setIsUnpausing(false)
-    }
+    await unPauseLottery();
+
   }
 
   const handleEmergencyWithdraw = async () => {
@@ -393,7 +373,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                 <CardDescription className="text-xs sm:text-sm">
                   Withdraw funds from the lottery contract in emergency situations
                 </CardDescription>
-                <p>Core Contract Token Balance: {coreContractTokenBalance} PTK</p>
+                <p>Lottery Contract Token Balance: {coreContractTokenBalance} PTK</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="max-w-sm">
