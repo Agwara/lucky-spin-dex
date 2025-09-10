@@ -5,6 +5,7 @@ import {
   CONTRACT_ADDRESSES,
   LOTTERY_CORE_ABI,
   GIFT_CONTRACT_ABI,
+  ADMIN_CONTRACT_ABI,
 } from "../lib/contracts";
 import { useState } from "react";
 
@@ -27,13 +28,6 @@ export const useAdmin = () => {
 
   // State for managing round queries
   const [currentRoundId, setCurrentRoundId] = useState<number | null>(null);
-
-  // Read admin-specific data
-  const { data: giftReserveStatus } = useReadContract({
-    address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
-    abi: GIFT_CONTRACT_ABI,
-    functionName: "getGiftReserveStatus",
-  });
 
   // Read contract data for the current round ID
   const {
@@ -121,6 +115,66 @@ export const useAdmin = () => {
     }
   };
 
+  const scheduleMaxPayoutChange = async (amount: string) => {
+    try {
+      const amountBigInt = parseEther(amount);
+      await writeContract({
+        address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
+        abi: ADMIN_CONTRACT_ABI,
+        functionName: "scheduleMaxPayoutChange",
+        args: [amountBigInt],
+        account: address,
+        chain: chain,
+      });
+      toast.success("Max payout change scheduled transaction submitted!");
+    } catch (error: any) {
+      toast.error(
+        `Max payout schedule failed: ${error.shortMessage || error.message}`
+      );
+      throw error;
+    }
+  };
+
+  const setMaxPayoutPerRound = async (amount: string) => {
+    try {
+      const amountBigInt = parseEther(amount);
+      await writeContract({
+        address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
+        abi: ADMIN_CONTRACT_ABI,
+        functionName: "setMaxPayoutPerRound",
+        args: [amountBigInt],
+        account: address,
+        chain: chain,
+      });
+      toast.success("Set max payout transaction submitted!!");
+    } catch (error: any) {
+      toast.error(
+        `Set max payout failed: ${error.shortMessage || error.message}`
+      );
+      throw error;
+    }
+  };
+
+  const emergencyWithdraw = async (amount: string) => {
+    try {
+      const amountBigInt = parseEther(amount);
+      await writeContract({
+        address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
+        abi: ADMIN_CONTRACT_ABI,
+        functionName: "emergencyWithdraw",
+        args: [amountBigInt],
+        account: address,
+        chain: chain,
+      });
+      toast.success("Emergency withdraw transaction submitted!!");
+    } catch (error: any) {
+      toast.error(
+        `Emergency withdraw failed: ${error.shortMessage || error.message}`
+      );
+      throw error;
+    }
+  };
+
   const roundData = rawRoundData
     ? {
         roundId: Number((rawRoundData as RoundData).roundId),
@@ -138,18 +192,22 @@ export const useAdmin = () => {
 
   return {
     // Data
-    giftReserveStatus,
     roundData,
     currentRoundId,
+
     // Loading state
     isAdminActionPending: isPending,
     isLoadingRound,
     adminError: error,
     roundError,
+
     // Functions
     getRound,
     endCurrentRound,
     fundGiftReserve,
     distributeGifts,
+    scheduleMaxPayoutChange,
+    setMaxPayoutPerRound,
+    emergencyWithdraw,
   };
 };

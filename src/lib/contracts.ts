@@ -2,6 +2,7 @@ import {
   FULL_PLATFORM_TOKEN_ABI,
   FULL_GIFT_CONTRACT_ABI,
   FULL_LOTTERY_CORE_ABI,
+  FULL_ADMIN_CONTRACT_ABI,
 } from "./ABIs";
 
 // Contract addresses - Replace with your deployed addresses
@@ -21,6 +22,9 @@ export const PLATFORM_TOKEN_ABI = [...FULL_PLATFORM_TOKEN_ABI] as const;
 // Gift Contract ABI (essential functions)
 export const GIFT_CONTRACT_ABI = [...FULL_GIFT_CONTRACT_ABI] as const;
 
+// Admin Contract ABI
+export const ADMIN_CONTRACT_ABI = [...FULL_ADMIN_CONTRACT_ABI] as const;
+
 // Utility function to get contract config
 export const getContractConfig = (
   contractName: keyof typeof CONTRACT_ADDRESSES
@@ -34,6 +38,8 @@ export const getContractConfig = (
       return { address, abi: LOTTERY_CORE_ABI };
     case "GIFT_CONTRACT":
       return { address, abi: GIFT_CONTRACT_ABI };
+    case "ADMIN_CONTRACT":
+      return { address, abi: ADMIN_CONTRACT_ABI };
     default:
       throw new Error(`Unknown contract: ${contractName}`);
   }

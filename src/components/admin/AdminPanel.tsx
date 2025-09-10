@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { useAdmin } from "@/hooks/useAdmin"
+import { useLottery } from "@/hooks/useLottery"
 
 interface AdminPanelProps {
   isAdmin: boolean
@@ -30,9 +31,11 @@ interface AdminPanelProps {
 
 export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const { address } = useAccount()
-  const { getRound, roundData, isLoadingRound, roundError } = useAdmin();
+  const { giftReserveStatus, maxPayoutPerRound, coreContractTokenBalance } = useLottery()
+  const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw,
+      scheduleMaxPayoutChange, setMaxPayoutPerRound } = useAdmin();
  
-  const [roundeID, setRoundId] = useState("")
+  const [roundeID, setRoundId] = useState("0")
 
   // Core Contract Admin States
   const [maxPayoutAmount, setMaxPayoutAmount] = useState("")
@@ -57,11 +60,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const [authorizedTransferor, setAuthorizedTransferor] = useState("")
   const [isAuthorizingTransferor, setIsAuthorizingTransferor] = useState(false)
   const [isTogglingEmergencyWithdrawal, setIsTogglingEmergencyWithdrawal] = useState(false)
-
-  console.log("roundData: ", roundData)
-  console.log("isLoadingRound: ", isLoadingRound)
-  console.log("roundError: ", roundError)
-
+  
   useEffect(() => {
     getRound(1);
   }, [])
@@ -82,16 +81,14 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   const handleScheduleMaxPayoutChange = async () => {
-    if (!maxPayoutAmount) {
+    if (!maxPayoutAmount || isNaN(parseInt(maxPayoutAmount)) || parseInt(maxPayoutAmount) <= 0) {
       toast.error("Please enter a valid amount")
       return
     }
 
     setIsSchedulingPayout(true)
     try {
-      // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate API call
-      toast.success("Max payout change scheduled successfully (24h timelock)")
+      await scheduleMaxPayoutChange(maxPayoutAmount)
     } catch (error) {
       toast.error("Failed to schedule max payout change")
     } finally {
@@ -100,11 +97,14 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   const handleSetMaxPayout = async () => {
+    if (!maxPayoutAmount || isNaN(parseInt(maxPayoutAmount)) || parseInt(maxPayoutAmount) <= 0) {
+      toast.error("Please enter a valid amount")
+      return
+    }
     setIsSettingPayout(true)
     try {
       // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      toast.success("Max payout updated successfully")
+      await setMaxPayoutPerRound(maxPayoutAmount)
     } catch (error) {
       toast.error("Failed to update max payout")
     } finally {
@@ -139,16 +139,14 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   const handleEmergencyWithdraw = async () => {
-    if (!emergencyWithdrawAmount) {
+    if (!emergencyWithdrawAmount || isNaN(parseInt(emergencyWithdrawAmount)) || parseInt(emergencyWithdrawAmount) <= 0) {
       toast.error("Please enter a valid amount")
       return
     }
 
     setIsEmergencyWithdraw(true)
     try {
-      // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      toast.success("Emergency withdrawal completed")
+      await emergencyWithdraw(emergencyWithdrawAmount)
       setEmergencyWithdrawAmount("")
     } catch (error) {
       toast.error("Emergency withdrawal failed")
@@ -395,6 +393,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                 <CardDescription className="text-xs sm:text-sm">
                   Withdraw funds from the lottery contract in emergency situations
                 </CardDescription>
+                <p>Core Contract Token Balance: {coreContractTokenBalance} PTK</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="max-w-sm">
@@ -515,8 +514,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                 </Button>
                 
                 <div className="text-xs sm:text-sm text-muted-foreground space-y-1 pt-2 border-t">
-                  <p>Current Reserve: Loading...</p>
-                  <p>Cost Per Round: Loading...</p>
+                  <p>Current Reserve: {giftReserveStatus?.reserve} PTK</p>
+                  <p>Cost Per Round: {giftReserveStatus?.costPerRound} PTK</p>
+                  <p>Max Payout Per Round: {maxPayoutPerRound} PTK</p>
                 </div>
               </CardContent>
             </Card>

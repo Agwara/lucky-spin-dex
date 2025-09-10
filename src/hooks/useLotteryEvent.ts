@@ -4,8 +4,14 @@ import {
   CONTRACT_ADDRESSES,
   LOTTERY_CORE_ABI,
   PLATFORM_TOKEN_ABI,
+  ADMIN_CONTRACT_ABI,
 } from "../lib/contracts";
 import { formatEther } from "viem";
+
+function shortenString(str, maxLength = 20) {
+  if (!str) return "";
+  return str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
+}
 
 export const useLotteryEvents = (
   userAddress?: string,
@@ -22,6 +28,7 @@ export const useLotteryEvents = (
   };
 
   const eventConfigs = [
+    // CORE CONTRACT SECTION
     {
       address: CONTRACT_ADDRESSES.CORE_CONTRACT,
       abi: LOTTERY_CORE_ABI,
@@ -32,7 +39,10 @@ export const useLotteryEvents = (
           toast.success(
             `Bet placed for Round ${roundId}: [${numbers?.join(
               ", "
-            )}] - ${formatEther(amount || 0n)} PTK`
+            )}] - ${formatEther(amount || 0n)} PTK`,
+            {
+              position: "top-right",
+            }
           );
         }
       },
@@ -47,10 +57,12 @@ export const useLotteryEvents = (
           `Round ${roundId} Results: [${winningNumbers?.join(", ")}]`,
           {
             duration: 10000,
+            position: "top-right",
           }
         );
       },
     },
+
     {
       address: CONTRACT_ADDRESSES.CORE_CONTRACT,
       abi: LOTTERY_CORE_ABI,
@@ -61,7 +73,10 @@ export const useLotteryEvents = (
           toast.success(
             `🎉 Winnings claimed! ${formatEther(
               amount || 0n
-            )} PTK for ${matchCount} matches in Round ${roundId}`
+            )} PTK for ${matchCount} matches in Round ${roundId}`,
+            {
+              position: "top-right",
+            }
           );
         }
       },
@@ -72,9 +87,12 @@ export const useLotteryEvents = (
       eventName: "RoundStarted",
       handler: (log: any) => {
         const { roundId } = log.args;
-        toast.info(`🎰 New Round ${roundId} Started!`);
+        toast.info(`🎰 New Round ${roundId} Started!`, {
+          position: "top-right",
+        });
       },
     },
+    // PLATFORM TOKEN SECTION
     {
       address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
       abi: PLATFORM_TOKEN_ABI,
@@ -83,7 +101,10 @@ export const useLotteryEvents = (
         const { user, amount } = log.args;
         if (normalize(user) === currentUser) {
           toast.success(
-            `Staked ${formatEther(amount || 0n)} PTK successfully!`
+            `Staked ${formatEther(amount || 0n)} PTK successfully!`,
+            {
+              position: "top-right",
+            }
           );
         }
       },
@@ -96,9 +117,42 @@ export const useLotteryEvents = (
         const { user, amount } = log.args;
         if (normalize(user) === currentUser) {
           toast.success(
-            `Unstaked ${formatEther(amount || 0n)} PTK successfully!`
+            `Unstaked ${formatEther(amount || 0n)} PTK successfully!`,
+            {
+              position: "top-right",
+            }
           );
         }
+      },
+    },
+    // ADMIN CONTRACT SECTION
+    {
+      address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
+      abi: ADMIN_CONTRACT_ABI,
+      eventName: "OperationScheduled",
+      handler: (log: any) => {
+        const { operationId } = log.args;
+        toast.success(
+          `Operation ${shortenString(operationId)} was scheduled successfully!`,
+          {
+            position: "top-right",
+          }
+        );
+      },
+    },
+
+    {
+      address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
+      abi: ADMIN_CONTRACT_ABI,
+      eventName: "MaxPayoutUpdated",
+      handler: (log: any) => {
+        const { newMaxPayout } = log.args;
+        toast.success(
+          `Max Payout Updated of ${newMaxPayout}PTK was scheduled successfully!`,
+          {
+            position: "top-right",
+          }
+        );
       },
     },
   ];

@@ -43,11 +43,30 @@ export const useLottery = () => {
     query: { enabled: isConnected },
   });
 
+  const maxPayoutPerRoundQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+    abi: LOTTERY_CORE_ABI,
+    functionName: "maxPayoutPerRound",
+    account: address,
+    query: { enabled: isConnected },
+  });
+
   const userStatsQuery = useReadContract({
     address: CONTRACT_ADDRESSES.CORE_CONTRACT,
     abi: LOTTERY_CORE_ABI,
     functionName: "getUserStats",
     args: address ? [address] : undefined,
+    account: address,
+    query: { enabled: isConnected && !!address },
+  });
+
+  const coreContractTokenBalanceQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+    abi: PLATFORM_TOKEN_ABI,
+    functionName: "balanceOf",
+    args: CONTRACT_ADDRESSES.CORE_CONTRACT
+      ? [CONTRACT_ADDRESSES.CORE_CONTRACT]
+      : undefined,
     account: address,
     query: { enabled: isConnected && !!address },
   });
@@ -118,8 +137,10 @@ export const useLottery = () => {
     stakingInfoQuery.error ||
     allowanceQuery.error ||
     minStakeAmountQuery.error ||
-    isEligibleQuery.error;
-  giftReserveStatusQuery.error;
+    isEligibleQuery.error ||
+    giftReserveStatusQuery.error ||
+    maxPayoutPerRoundQuery.error ||
+    coreContractTokenBalanceQuery.error;
 
   useEffect(() => {
     console.log("readError: ", readError);
@@ -276,6 +297,8 @@ export const useLottery = () => {
         minStakeAmountQuery.refetch(),
         isEligibleQuery.refetch(),
         giftReserveStatusQuery.refetch(),
+        maxPayoutPerRoundQuery.refetch(),
+        coreContractTokenBalanceQuery.refetch(),
       ]);
       toast.success("Data refreshed!");
     } catch {
@@ -296,6 +319,9 @@ export const useLottery = () => {
   const minStakeAmount: any = minStakeAmountQuery.data ?? 0n;
   const isEligible: any = isEligibleQuery.data ?? false;
   const giftReserveStatus: any = giftReserveStatusQuery.data;
+  const maxPayoutPerRound: any = maxPayoutPerRoundQuery.data ?? 0n;
+  const coreContractTokenBalance: any =
+    coreContractTokenBalanceQuery.data ?? 0n;
 
   const formattedCurrentRound = currentRound
     ? {
@@ -349,6 +375,8 @@ export const useLottery = () => {
     minStakeAmount: formatEther(minStakeAmount),
     isEligible: Boolean(isEligible),
     giftReserveStatus: formattedGiftReserve,
+    maxPayoutPerRound: formatEther(maxPayoutPerRound),
+    coreContractTokenBalance: formatEther(coreContractTokenBalance),
 
     isLoading:
       currentRoundQuery.isLoading ||
@@ -359,6 +387,8 @@ export const useLottery = () => {
       minStakeAmountQuery.isLoading ||
       isEligibleQuery.isLoading ||
       giftReserveStatusQuery.isLoading ||
+      maxPayoutPerRoundQuery.isLoading ||
+      coreContractTokenBalanceQuery.isLoading ||
       isRefetching,
 
     isWritePending: isWritePending || isConfirming,

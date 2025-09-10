@@ -106,7 +106,7 @@ export const StakingPanel = ({
 
         {/* Eligibility Status */}
         <div className="flex items-center gap-3 p-4 bg-muted/20 rounded-lg">
-          {isEligible ? (
+          {stakedBalance > 0 ? (
             <>
               <Gift className="w-6 h-6 text-lottery-win" />
               <div>
