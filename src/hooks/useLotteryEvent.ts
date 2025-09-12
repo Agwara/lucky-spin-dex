@@ -110,6 +110,29 @@ export const useLotteryEvents = (
         }
       },
     },
+
+    {
+      address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+      abi: PLATFORM_TOKEN_ABI,
+      eventName: "AuthorizedBurnerUpdated",
+      handler: (log: any) => {
+        toast.success(`Authorized Burner Updated successfully!`, {
+          position: "top-right",
+        });
+      },
+    },
+
+    {
+      address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+      abi: PLATFORM_TOKEN_ABI,
+      eventName: "AuthorizedTransferorUpdated",
+      handler: (log: any) => {
+        toast.success(`Authorized Transferor Updated successfully!`, {
+          position: "top-right",
+        });
+      },
+    },
+
     {
       address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
       abi: PLATFORM_TOKEN_ABI,
@@ -126,6 +149,18 @@ export const useLotteryEvents = (
         }
       },
     },
+
+    {
+      address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+      abi: PLATFORM_TOKEN_ABI,
+      eventName: "EmergencyWithdrawalToggled",
+      handler: (log: any) => {
+        toast.success(`Emergency Withdrawal Toggled successfully!`, {
+          position: "top-right",
+        });
+      },
+    },
+
     // ADMIN CONTRACT SECTION
     {
       address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,

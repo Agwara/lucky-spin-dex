@@ -382,6 +382,89 @@ export const useAdmin = () => {
     }
   };
 
+  const handleSetAuthorizedBurner = async (
+    burner: string,
+    authorized: boolean
+  ) => {
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+        abi: PLATFORM_TOKEN_ABI,
+        functionName: "setAuthorizedBurner",
+        args: [burner as `0x${string}`, authorized],
+        account: address,
+        chain: chain,
+      });
+
+      await waitForTransactionReceipt(config, { hash });
+      toast.success(
+        `Burner ${burner} ${
+          authorized ? "authorized" : "deauthorized"
+        } successfully!`
+      );
+    } catch (error: any) {
+      toast.error(
+        `Set authorized burner failed: ${error.shortMessage || error.message}`
+      );
+      throw error;
+    }
+  };
+
+  const handleSetAuthorizedTransferor = async (
+    transferor: string,
+    authorized: boolean
+  ) => {
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+        abi: PLATFORM_TOKEN_ABI,
+        functionName: "setAuthorizedTransferor",
+        args: [transferor as `0x${string}`, authorized],
+        account: address,
+        chain: chain,
+      });
+
+      await waitForTransactionReceipt(config, { hash });
+      toast.success(
+        `Transferor ${transferor} ${
+          authorized ? "authorized" : "deauthorized"
+        } successfully!`
+      );
+    } catch (error: any) {
+      toast.error(
+        `Set authorized transferor failed: ${
+          error.shortMessage || error.message
+        }`
+      );
+      throw error;
+    }
+  };
+
+  const toggleEmergencyWithdrawal = async (enabled: boolean) => {
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+        abi: PLATFORM_TOKEN_ABI,
+        functionName: "toggleEmergencyWithdrawal",
+        args: [enabled],
+        account: address,
+        chain: chain,
+      });
+
+      await waitForTransactionReceipt(config, { hash });
+      toast.success(
+        `Emergency withdrawal ${enabled ? "enabled" : "disabled"} successfully!`
+      );
+    } catch (error: any) {
+      toast.error(
+        `Toggle emergency withdrawal failed: ${
+          error.shortMessage || error.message
+        }`
+      );
+      throw error;
+    }
+  };
+
   const roundData = rawRoundData
     ? {
         roundId: Number((rawRoundData as RoundData).roundId),
@@ -422,5 +505,8 @@ export const useAdmin = () => {
     unPauseLottery,
     pauseLottery,
     updateGiftSettings,
+    handleSetAuthorizedBurner,
+    handleSetAuthorizedTransferor,
+    toggleEmergencyWithdrawal,
   };
 };

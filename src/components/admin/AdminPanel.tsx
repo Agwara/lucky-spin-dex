@@ -32,8 +32,9 @@ interface AdminPanelProps {
 export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const { address } = useAccount()
   const { giftReserveStatus, maxPayoutPerRound, coreContractTokenBalance, 
-    giftRecipientsCountValue, creatorGiftAmountValue, userGiftAmountValue } = useLottery()
-  const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw, updateGiftSettings, allowance,
+    giftRecipientsCountValue, creatorGiftAmountValue, userGiftAmountValue, emergencyWithdrawalEnabled } = useLottery()
+  const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw, updateGiftSettings, allowance, handleSetAuthorizedBurner,
+    handleSetAuthorizedTransferor, toggleEmergencyWithdrawal,
       scheduleMaxPayoutChange, setMaxPayoutPerRound, pauseLottery, unPauseLottery, isUnpausing, isPausing, fundGiftReserve } = useAdmin();
  
   const [roundeID, setRoundId] = useState("0")
@@ -190,9 +191,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
 
     setIsAuthorizingBurner(true)
     try {
-      // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      toast.success(`Burner ${authorize ? 'authorized' : 'deauthorized'} successfully`)
+      await handleSetAuthorizedBurner(authorizedBurner, authorize)
       if (authorize) setAuthorizedBurner("")
     } catch (error) {
       toast.error(`Failed to ${authorize ? 'authorize' : 'deauthorize'} burner`)
@@ -209,9 +208,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
 
     setIsAuthorizingTransferor(true)
     try {
-      // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      toast.success(`Transferor ${authorize ? 'authorized' : 'deauthorized'} successfully`)
+      await handleSetAuthorizedTransferor(authorizedTransferor, authorize)
       if (authorize) setAuthorizedTransferor("")
     } catch (error) {
       toast.error(`Failed to ${authorize ? 'authorize' : 'deauthorize'} transferor`)
@@ -224,8 +221,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
     setIsTogglingEmergencyWithdrawal(true)
     try {
       // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      toast.success("Emergency withdrawal setting toggled")
+      await toggleEmergencyWithdrawal(!emergencyWithdrawalEnabled)
     } catch (error) {
       toast.error("Failed to toggle emergency withdrawal")
     } finally {

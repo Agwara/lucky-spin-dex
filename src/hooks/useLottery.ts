@@ -157,6 +157,14 @@ export const useLottery = () => {
     query: { enabled: isConnected },
   });
 
+  const emergencyWithdrawalEnabledQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+    abi: PLATFORM_TOKEN_ABI,
+    functionName: "emergencyWithdrawalEnabled",
+    account: address,
+    query: { enabled: isConnected },
+  });
+
   // -----------------------------------
   // Handle errors
   // -----------------------------------
@@ -178,7 +186,8 @@ export const useLottery = () => {
     isPausedQuery.error ||
     giftRecipientsCountQuery.error ||
     creatorGiftAmountQuery.error ||
-    userGiftAmountQuery.error;
+    userGiftAmountQuery.error ||
+    emergencyWithdrawalEnabledQuery.error;
 
   useEffect(() => {
     console.log("readError: ", readError);
@@ -358,6 +367,7 @@ export const useLottery = () => {
         giftRecipientsCountQuery.refetch(),
         creatorGiftAmountQuery.refetch(),
         userGiftAmountQuery.refetch(),
+        emergencyWithdrawalEnabledQuery.refetch(),
       ]);
       toast.success("Data refreshed!");
     } catch {
@@ -385,6 +395,8 @@ export const useLottery = () => {
   const giftRecipientsCount: any = giftRecipientsCountQuery.data ?? 0n;
   const creatorGiftAmount: any = creatorGiftAmountQuery.data ?? 0n;
   const userGiftAmount: any = userGiftAmountQuery.data ?? 0n;
+  const emergencyWithdrawalEnabled: any =
+    emergencyWithdrawalEnabledQuery.data ?? false;
 
   const formattedCurrentRound = currentRound
     ? {
@@ -419,7 +431,6 @@ export const useLottery = () => {
       }
     : null;
 
-  console.log("giftReserveStatus: ", giftReserveStatus);
   const formattedGiftReserve = giftReserveStatus
     ? {
         reserve: formatEther(giftReserveStatus[0]),
@@ -445,6 +456,7 @@ export const useLottery = () => {
     giftRecipientsCountValue: Number(giftRecipientsCount),
     creatorGiftAmountValue: formatEther(creatorGiftAmount),
     userGiftAmountValue: formatEther(userGiftAmount),
+    emergencyWithdrawalEnabled,
 
     isLoading:
       currentRoundQuery.isLoading ||
@@ -461,7 +473,8 @@ export const useLottery = () => {
       isPausedQuery.isLoading ||
       giftRecipientsCountQuery.isLoading ||
       creatorGiftAmountQuery.isLoading ||
-      userGiftAmountQuery.isLoading,
+      userGiftAmountQuery.isLoading ||
+      emergencyWithdrawalEnabledQuery.isLoading,
 
     isWritePending: isWritePending || isConfirming,
 
