@@ -5,6 +5,7 @@ import {
   LOTTERY_CORE_ABI,
   PLATFORM_TOKEN_ABI,
   ADMIN_CONTRACT_ABI,
+  GIFT_CONTRACT_ABI,
 } from "../lib/contracts";
 import { formatEther } from "viem";
 
@@ -179,6 +180,19 @@ export const useLotteryEvents = (
         // const { sender } = log.args;
         console.log("sender: ", log.args);
         toast.success(`Lottery Game Unpaused successfully!`, {
+          position: "top-right",
+        });
+      },
+    },
+
+    {
+      address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+      abi: GIFT_CONTRACT_ABI,
+      eventName: "GiftSettingsUpdated",
+      handler: (log: any) => {
+        // const { recipientsCount, creatorAmount, userAmount } = log.args;
+        console.log("sender: ", log.args);
+        toast.success(`Gift Settings Updated successfully!`, {
           position: "top-right",
         });
       },

@@ -86,15 +86,18 @@ const Index = () => {
             </div>
             
             <div className="flex items-center gap-4 justify-between">
-              <Button
-                onClick={handleRefresh}
-                disabled={isLoading}
-                variant="outline"
-                size="sm"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
+              {
+                isConnected &&
+                <Button
+                  onClick={handleRefresh}
+                  disabled={isLoading}
+                  variant="outline"
+                  size="sm"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              }
               
               {isConnected && (
                 <Badge className="bg-lottery-win text-white">

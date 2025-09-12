@@ -133,6 +133,30 @@ export const useLottery = () => {
     query: { enabled: isConnected },
   });
 
+  const giftRecipientsCountQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+    abi: GIFT_CONTRACT_ABI,
+    functionName: "giftRecipientsCount",
+    account: address,
+    query: { enabled: isConnected },
+  });
+
+  const creatorGiftAmountQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+    abi: GIFT_CONTRACT_ABI,
+    functionName: "creatorGiftAmount",
+    account: address,
+    query: { enabled: isConnected },
+  });
+
+  const userGiftAmountQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+    abi: GIFT_CONTRACT_ABI,
+    functionName: "userGiftAmount",
+    account: address,
+    query: { enabled: isConnected },
+  });
+
   // -----------------------------------
   // Handle errors
   // -----------------------------------
@@ -151,7 +175,10 @@ export const useLottery = () => {
     giftReserveStatusQuery.error ||
     maxPayoutPerRoundQuery.error ||
     coreContractTokenBalanceQuery.error ||
-    isPausedQuery.error;
+    isPausedQuery.error ||
+    giftRecipientsCountQuery.error ||
+    creatorGiftAmountQuery.error ||
+    userGiftAmountQuery.error;
 
   useEffect(() => {
     console.log("readError: ", readError);
@@ -328,6 +355,9 @@ export const useLottery = () => {
         maxPayoutPerRoundQuery.refetch(),
         coreContractTokenBalanceQuery.refetch(),
         isPausedQuery.refetch(),
+        giftRecipientsCountQuery.refetch(),
+        creatorGiftAmountQuery.refetch(),
+        userGiftAmountQuery.refetch(),
       ]);
       toast.success("Data refreshed!");
     } catch {
@@ -352,6 +382,9 @@ export const useLottery = () => {
   const coreContractTokenBalance: any =
     coreContractTokenBalanceQuery.data ?? 0n;
   const isPaused: any = isPausedQuery.data ?? false;
+  const giftRecipientsCount: any = giftRecipientsCountQuery.data ?? 0n;
+  const creatorGiftAmount: any = creatorGiftAmountQuery.data ?? 0n;
+  const userGiftAmount: any = userGiftAmountQuery.data ?? 0n;
 
   const formattedCurrentRound = currentRound
     ? {
@@ -386,6 +419,7 @@ export const useLottery = () => {
       }
     : null;
 
+  console.log("giftReserveStatus: ", giftReserveStatus);
   const formattedGiftReserve = giftReserveStatus
     ? {
         reserve: formatEther(giftReserveStatus[0]),
@@ -408,6 +442,9 @@ export const useLottery = () => {
     maxPayoutPerRound: formatEther(maxPayoutPerRound),
     coreContractTokenBalance: formatEther(coreContractTokenBalance),
     isPaused: Boolean(isPaused),
+    giftRecipientsCountValue: Number(giftRecipientsCount),
+    creatorGiftAmountValue: formatEther(creatorGiftAmount),
+    userGiftAmountValue: formatEther(userGiftAmount),
 
     isLoading:
       currentRoundQuery.isLoading ||
@@ -421,7 +458,10 @@ export const useLottery = () => {
       maxPayoutPerRoundQuery.isLoading ||
       coreContractTokenBalanceQuery.isLoading ||
       isRefetching ||
-      isPausedQuery.isLoading,
+      isPausedQuery.isLoading ||
+      giftRecipientsCountQuery.isLoading ||
+      creatorGiftAmountQuery.isLoading ||
+      userGiftAmountQuery.isLoading,
 
     isWritePending: isWritePending || isConfirming,
 

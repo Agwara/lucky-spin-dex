@@ -31,8 +31,9 @@ interface AdminPanelProps {
 
 export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const { address } = useAccount()
-  const { giftReserveStatus, maxPayoutPerRound, coreContractTokenBalance } = useLottery()
-  const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw,
+  const { giftReserveStatus, maxPayoutPerRound, coreContractTokenBalance, 
+    giftRecipientsCountValue, creatorGiftAmountValue, userGiftAmountValue } = useLottery()
+  const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw, updateGiftSettings,
       scheduleMaxPayoutChange, setMaxPayoutPerRound, pauseLottery, unPauseLottery, isUnpausing, isPausing } = useAdmin();
  
   const [roundeID, setRoundId] = useState("0")
@@ -79,7 +80,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   const handleScheduleMaxPayoutChange = async () => {
-    if (!maxPayoutAmount || isNaN(parseInt(maxPayoutAmount)) || parseInt(maxPayoutAmount) <= 0) {
+    if (checkField(maxPayoutAmount)) {
       toast.error("Please enter a valid amount")
       return
     }
@@ -95,7 +96,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   const handleSetMaxPayout = async () => {
-    if (!maxPayoutAmount || isNaN(parseInt(maxPayoutAmount)) || parseInt(maxPayoutAmount) <= 0) {
+    if (checkField(maxPayoutAmount)) {
       toast.error("Please enter a valid amount")
       return
     }
@@ -118,8 +119,16 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
 
   }
 
+  const checkField = (inputField:string) => {
+    if (!inputField || isNaN(parseInt(inputField)) || parseInt(inputField) <= 0) {
+      return true
+    } else {
+      return false
+    }
+  }
+
   const handleEmergencyWithdraw = async () => {
-    if (!emergencyWithdrawAmount || isNaN(parseInt(emergencyWithdrawAmount)) || parseInt(emergencyWithdrawAmount) <= 0) {
+    if (checkField(emergencyWithdrawAmount)) {
       toast.error("Please enter a valid amount")
       return
     }
@@ -136,20 +145,21 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   const handleUpdateGiftSettings = async () => {
-    if (!giftRecipientsCount || !creatorGiftAmount || !userGiftAmount) {
-      toast.error("Please fill in all gift settings fields")
+    if (checkField(giftRecipientsCount) || checkField(creatorGiftAmount) || checkField(userGiftAmount)) {
+      toast.error("Please fill in all gift settings fields properly")
       return
     }
 
     setIsUpdatingGiftSettings(true)
     try {
-      // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      toast.success("Gift settings updated successfully")
+      await updateGiftSettings(giftRecipientsCount, creatorGiftAmount, userGiftAmount)
     } catch (error) {
       toast.error("Failed to update gift settings")
     } finally {
       setIsUpdatingGiftSettings(false)
+      setGiftRecipientsCount("")
+      setCreatorGiftAmount("")
+      setUserGiftAmount("")
     }
   }
 
@@ -166,6 +176,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
       toast.success("Gift reserve funded successfully")
       setGiftReserveFundAmount("")
     } catch (error) {
+      console.log("error two: ", error)
       toast.error("Failed to fund gift reserve")
     } finally {
       setIsFundingReserve(false)
@@ -458,6 +469,12 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                 >
                   {isUpdatingGiftSettings ? "Updating..." : "Update Settings"}
                 </Button>
+
+                <div className="text-xs sm:text-sm text-muted-foreground space-y-1 pt-2 border-t">
+                  <p>Recipient Gift Count: {giftRecipientsCountValue}</p>
+                  <p>Creator Gift Amount: {creatorGiftAmountValue} PTK</p>
+                  <p>User Gift Amount: {userGiftAmountValue} PTK</p>
+                </div>
               </CardContent>
             </Card>
 

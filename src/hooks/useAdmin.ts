@@ -291,6 +291,36 @@ export const useAdmin = () => {
     }
   };
 
+  const updateGiftSettings = async (
+    count: string,
+    creatorAmount: string,
+    userAmount: string
+  ) => {
+    try {
+      const recipientCountBigInt = BigInt(parseInt(count, 10)); // <-- CORRECT
+      const creatorAmountBigInt = parseEther(creatorAmount);
+      const userAmountBigInt = parseEther(userAmount);
+
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+        abi: GIFT_CONTRACT_ABI,
+        functionName: "updateGiftSettings",
+        args: [recipientCountBigInt, creatorAmountBigInt, userAmountBigInt],
+        account: address,
+        chain: chain,
+      });
+      // Wait for the transaction to be mined
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Update gift settings transaction successful!");
+    } catch (error: any) {
+      console.error("FULL ERROR:", error);
+      toast.error(
+        `Update gift settings failed: ${error.shortMessage || error.message}`
+      );
+      throw error;
+    }
+  };
+
   const roundData = rawRoundData
     ? {
         roundId: Number((rawRoundData as RoundData).roundId),
@@ -329,5 +359,6 @@ export const useAdmin = () => {
     emergencyWithdraw,
     unPauseLottery,
     pauseLottery,
+    updateGiftSettings,
   };
 };
