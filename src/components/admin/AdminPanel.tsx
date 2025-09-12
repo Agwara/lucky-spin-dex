@@ -33,8 +33,8 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const { address } = useAccount()
   const { giftReserveStatus, maxPayoutPerRound, coreContractTokenBalance, 
     giftRecipientsCountValue, creatorGiftAmountValue, userGiftAmountValue } = useLottery()
-  const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw, updateGiftSettings,
-      scheduleMaxPayoutChange, setMaxPayoutPerRound, pauseLottery, unPauseLottery, isUnpausing, isPausing } = useAdmin();
+  const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw, updateGiftSettings, allowance,
+      scheduleMaxPayoutChange, setMaxPayoutPerRound, pauseLottery, unPauseLottery, isUnpausing, isPausing, fundGiftReserve } = useAdmin();
  
   const [roundeID, setRoundId] = useState("0")
 
@@ -164,15 +164,14 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   }
 
   const handleFundGiftReserve = async () => {
-    if (!giftReserveFundAmount) {
+    if (checkField(giftReserveFundAmount)) {
       toast.error("Please enter a valid amount")
       return
     }
 
     setIsFundingReserve(true)
     try {
-      // TODO: Integrate with smart contract
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await fundGiftReserve(giftReserveFundAmount)
       toast.success("Gift reserve funded successfully")
       setGiftReserveFundAmount("")
     } catch (error) {
@@ -514,6 +513,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   <p>Current Reserve: {giftReserveStatus?.reserve} PTK</p>
                   <p>Cost Per Round: {giftReserveStatus?.costPerRound} PTK</p>
                   <p>Max Payout Per Round: {maxPayoutPerRound} PTK</p>
+                  <p>Allowance: {allowance} PTK</p>
                 </div>
               </CardContent>
             </Card>

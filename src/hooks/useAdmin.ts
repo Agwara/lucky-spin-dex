@@ -82,25 +82,25 @@ export const useAdmin = () => {
     }
   };
 
-  const fundGiftReserve = async (amount: string) => {
-    try {
-      const amountBigInt = parseEther(amount);
-      await writeContract({
-        address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
-        abi: GIFT_CONTRACT_ABI,
-        functionName: "fundGiftReserve",
-        args: [amountBigInt],
-        account: address,
-        chain: chain,
-      });
-      toast.success("Gift reserve funding transaction submitted!");
-    } catch (error: any) {
-      toast.error(
-        `Gift reserve funding failed: ${error.shortMessage || error.message}`
-      );
-      throw error;
-    }
-  };
+  // const fundGiftReserve = async (amount: string) => {
+  //   try {
+  //     const amountBigInt = parseEther(amount);
+  //     await writeContract({
+  //       address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+  //       abi: GIFT_CONTRACT_ABI,
+  //       functionName: "fundGiftReserve",
+  //       args: [amountBigInt],
+  //       account: address,
+  //       chain: chain,
+  //     });
+  //     toast.success("Gift reserve funding transaction submitted!");
+  //   } catch (error: any) {
+  //     toast.error(
+  //       `Gift reserve funding failed: ${error.shortMessage || error.message}`
+  //     );
+  //     throw error;
+  //   }
+  // };
 
   const distributeGifts = async (roundId: number) => {
     try {
@@ -321,6 +321,67 @@ export const useAdmin = () => {
     }
   };
 
+  // Read current allowance for GiftContract
+  const {
+    data: rawAllowance,
+    refetch: refetchAllowance,
+    isLoading: isAllowanceLoading,
+  } = useReadContract({
+    address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+    abi: PLATFORM_TOKEN_ABI,
+    functionName: "allowance",
+    args: address ? [address, CONTRACT_ADDRESSES.GIFT_CONTRACT] : undefined,
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  // cast to bigint safely (fallback 0n if undefined)
+  const allowance: bigint = (rawAllowance as bigint) ?? 0n;
+
+  const fundGiftReserve = async (amount: string) => {
+    try {
+      const amountBigInt = parseEther(amount);
+
+      // 1. Approve if allowance is too small
+      if (allowance < amountBigInt) {
+        const approveHash = await writeContractAsync({
+          address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+          abi: PLATFORM_TOKEN_ABI,
+          functionName: "approve",
+          args: [CONTRACT_ADDRESSES.GIFT_CONTRACT, amountBigInt],
+          account: address,
+          chain: chain,
+        });
+
+        await waitForTransactionReceipt(config, { hash: approveHash });
+        toast.success("Token approval successful!");
+
+        // refresh allowance after approval
+        await refetchAllowance();
+      }
+
+      // 2. Call fundGiftReserve
+      const fundHash = await writeContractAsync({
+        address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+        abi: GIFT_CONTRACT_ABI,
+        functionName: "fundGiftReserve",
+        args: [amountBigInt],
+        account: address,
+        chain: chain,
+      });
+
+      await waitForTransactionReceipt(config, { hash: fundHash });
+      toast.success("Gift reserve funding transaction successful!");
+      await refetchAllowance();
+    } catch (error: any) {
+      toast.error(
+        `Gift reserve funding failed: ${error.shortMessage || error.message}`
+      );
+      throw error;
+    }
+  };
+
   const roundData = rawRoundData
     ? {
         roundId: Number((rawRoundData as RoundData).roundId),
@@ -340,6 +401,7 @@ export const useAdmin = () => {
     // Data
     roundData,
     currentRoundId,
+    allowance: formatEther(allowance),
 
     // Loading state
     isAdminActionPending: isPending,

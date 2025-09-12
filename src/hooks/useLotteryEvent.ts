@@ -197,6 +197,19 @@ export const useLotteryEvents = (
         });
       },
     },
+
+    {
+      address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
+      abi: GIFT_CONTRACT_ABI,
+      eventName: "GiftReserveFunded",
+      handler: (log: any) => {
+        // const { recipientsCount, creatorAmount, userAmount } = log.args;
+        console.log("sender: ", log.args);
+        toast.success(`Gift Reserve Funded successfully!`, {
+          position: "top-right",
+        });
+      },
+    },
   ];
 
   // Register watchers dynamically
