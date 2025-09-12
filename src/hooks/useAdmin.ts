@@ -67,52 +67,46 @@ export const useAdmin = () => {
   };
 
   const endCurrentRound = async () => {
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
-      await writeContract({
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.CORE_CONTRACT,
         abi: LOTTERY_CORE_ABI,
         functionName: "endRound",
         account: address,
-        chain: chain,
+        chain,
       });
-      toast.success("End round transaction submitted!");
+
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Round ended successfully!");
     } catch (error: any) {
       toast.error(`End round failed: ${error.shortMessage || error.message}`);
       throw error;
     }
   };
 
-  // const fundGiftReserve = async (amount: string) => {
-  //   try {
-  //     const amountBigInt = parseEther(amount);
-  //     await writeContract({
-  //       address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
-  //       abi: GIFT_CONTRACT_ABI,
-  //       functionName: "fundGiftReserve",
-  //       args: [amountBigInt],
-  //       account: address,
-  //       chain: chain,
-  //     });
-  //     toast.success("Gift reserve funding transaction submitted!");
-  //   } catch (error: any) {
-  //     toast.error(
-  //       `Gift reserve funding failed: ${error.shortMessage || error.message}`
-  //     );
-  //     throw error;
-  //   }
-  // };
-
   const distributeGifts = async (roundId: number) => {
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
-      await writeContract({
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
         abi: GIFT_CONTRACT_ABI,
         functionName: "distributeGifts",
         args: [BigInt(roundId)],
         account: address,
-        chain: chain,
+        chain,
       });
-      toast.success("Gift distribution transaction submitted!");
+
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Gift distribution completed successfully!");
     } catch (error: any) {
       toast.error(
         `Gift distribution failed: ${error.shortMessage || error.message}`
@@ -122,17 +116,24 @@ export const useAdmin = () => {
   };
 
   const scheduleMaxPayoutChange = async (amount: string) => {
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
       const amountBigInt = parseEther(amount);
-      await writeContract({
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
         abi: ADMIN_CONTRACT_ABI,
         functionName: "scheduleMaxPayoutChange",
         args: [amountBigInt],
         account: address,
-        chain: chain,
+        chain,
       });
-      toast.success("Max payout change scheduled transaction submitted!");
+
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Max payout change scheduled successfully!");
     } catch (error: any) {
       toast.error(
         `Max payout schedule failed: ${error.shortMessage || error.message}`
@@ -142,18 +143,24 @@ export const useAdmin = () => {
   };
 
   const setMaxPayoutPerRound = async (amount: string) => {
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
       const amountBigInt = parseEther(amount);
-      await writeContract({
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.ADMIN_CONTRACT,
         abi: ADMIN_CONTRACT_ABI,
         functionName: "setMaxPayoutPerRound",
         args: [amountBigInt],
         account: address,
-        chain: chain,
+        chain,
       });
 
-      toast.success("Set max payout transaction submitted!!");
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Max payout per round set successfully!");
     } catch (error: any) {
       toast.error(
         `Set max payout failed: ${error.shortMessage || error.message}`

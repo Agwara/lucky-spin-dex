@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Sparkles, Trophy, Gift, Settings, RefreshCw, Shield } from "lucide-react"
 import { WalletConnect } from "@/components/wallet/WalletConnect"
 import { CurrentRound } from "@/components/lottery/CurrentRound"
+import { ClaimWinnings } from "@/components/lottery/ClaimWinnings"
 import { NumberSelector } from "@/components/lottery/NumberSelector"
 import { StakingPanel } from "@/components/lottery/StakingPanel"
 import { UserStats } from "@/components/lottery/UserStats"
@@ -68,6 +69,7 @@ const Index = () => {
       console.error('Bet placement failed:', error)
     }
   }
+
 
   return (
     <div className="min-h-screen bg-gradient-background">
@@ -226,7 +228,10 @@ const Index = () => {
               <TabsContent value="stats" className="space-y-6">
                 <div className="grid lg:grid-cols-2 gap-6">
                   <UserStats stats={userStats} loading={isLoading} />
-                  <WalletConnect />
+                  <div className="grid grid-rows-2 gap-y-[20px]">
+                    <ClaimWinnings />
+                    <WalletConnect />
+                  </div>
                 </div>
               </TabsContent>
 

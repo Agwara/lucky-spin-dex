@@ -18,7 +18,8 @@ import {
   Clock,
   Users,
   History,
-  Info
+  Info,
+  Gamepad
 } from "lucide-react"
 import { toast } from "sonner"
 import { useAdmin } from "@/hooks/useAdmin"
@@ -31,11 +32,37 @@ interface AdminPanelProps {
 
 export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const { address } = useAccount()
-  const { giftReserveStatus, maxPayoutPerRound, coreContractTokenBalance, 
-    giftRecipientsCountValue, creatorGiftAmountValue, userGiftAmountValue, emergencyWithdrawalEnabled } = useLottery()
-  const { getRound, roundData, isLoadingRound, roundError, emergencyWithdraw, updateGiftSettings, allowance, handleSetAuthorizedBurner,
-    handleSetAuthorizedTransferor, toggleEmergencyWithdrawal,
-      scheduleMaxPayoutChange, setMaxPayoutPerRound, pauseLottery, unPauseLottery, isUnpausing, isPausing, fundGiftReserve } = useAdmin();
+  const { 
+    giftReserveStatus, 
+    maxPayoutPerRound, 
+    coreContractTokenBalance, 
+    currentRound,
+    giftRecipientsCountValue, 
+    creatorGiftAmountValue, 
+    userGiftAmountValue, 
+    emergencyWithdrawalEnabled 
+  } = useLottery()
+
+  const { 
+    roundData, 
+    isLoadingRound, 
+    roundError, 
+    allowance, 
+    isUnpausing, 
+    isPausing, 
+    emergencyWithdraw, 
+    updateGiftSettings, 
+    handleSetAuthorizedBurner,
+    handleSetAuthorizedTransferor, 
+    toggleEmergencyWithdrawal, 
+    endCurrentRound,
+    scheduleMaxPayoutChange, 
+    setMaxPayoutPerRound, 
+    pauseLottery, 
+    unPauseLottery, 
+    getRound, 
+    fundGiftReserve 
+  } = useAdmin();
  
   const [roundeID, setRoundId] = useState("0")
 
@@ -45,6 +72,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const [isSettingPayout, setIsSettingPayout] = useState(false)
   const [emergencyWithdrawAmount, setEmergencyWithdrawAmount] = useState("")
   const [isEmergencyWithdraw, setIsEmergencyWithdraw] = useState(false)
+  const [endingCurrentRound, setEndingCurrentRound] = useState(false)
 
   // Gift Contract Admin States
   const [giftRecipientsCount, setGiftRecipientsCount] = useState("")
@@ -60,6 +88,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const [authorizedTransferor, setAuthorizedTransferor] = useState("")
   const [isAuthorizingTransferor, setIsAuthorizingTransferor] = useState(false)
   const [isTogglingEmergencyWithdrawal, setIsTogglingEmergencyWithdrawal] = useState(false)
+
   
   useEffect(() => {
     getRound(1);
@@ -220,12 +249,22 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const handleToggleEmergencyWithdrawal = async () => {
     setIsTogglingEmergencyWithdrawal(true)
     try {
-      // TODO: Integrate with smart contract
       await toggleEmergencyWithdrawal(!emergencyWithdrawalEnabled)
     } catch (error) {
       toast.error("Failed to toggle emergency withdrawal")
     } finally {
       setIsTogglingEmergencyWithdrawal(false)
+    }
+  }
+
+  const handleEndCurrentRound = async () => {
+    setEndingCurrentRound(true)
+    try {
+      await endCurrentRound()
+    } catch (error) {
+      toast.error("Failed to toggle emergency withdrawal")
+    } finally {
+      setEndingCurrentRound(false)
     }
   }
 
@@ -370,7 +409,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
             </Card>
 
             {/* Emergency Withdrawal */}
-            <Card className="lottery-card lg:col-span-2">
+            <Card className="lottery-card">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2 text-destructive text-base sm:text-lg">
                   <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -402,6 +441,31 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                 >
                   <AlertTriangle className="w-4 h-4 mr-2" />
                   {isEmergencyWithdraw ? "Withdrawing..." : "Emergency Withdraw"}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="lottery-card">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base text-base sm:text-lg">
+                  <Gamepad className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
+                  Current Round
+                </CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
+                  End current round
+                </CardDescription>
+                <p>Current Round: {currentRound.roundId}</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button
+                  onClick={handleEndCurrentRound}
+                  disabled={endingCurrentRound}
+                  variant="default"
+                  size="sm"
+                  className="text-sm"
+                >
+                  <Gamepad className="w-4 h-4 mr-2" />
+                  {endingCurrentRound ? "Processing..." : "End Current Round"}
                 </Button>
               </CardContent>
             </Card>

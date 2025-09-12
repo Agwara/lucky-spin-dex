@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge"
 import { Wallet, LogOut, Copy, ExternalLink } from "lucide-react"
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { toast } from "sonner"
-import { useSendTransaction } from 'wagmi' 
 
 export const WalletConnect = () => {
   const { address, isConnected, connector } = useAccount()

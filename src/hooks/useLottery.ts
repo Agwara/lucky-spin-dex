@@ -20,9 +20,11 @@ export const useLottery = () => {
   const { address, isConnected, chain } = useAccount();
   const [isRefetching, setIsRefetching] = useState(false);
 
+  // State for managing round queries
+  const [currentBetId, setCurrentBetId] = useState<number | null>(null);
+
   // Write contract
   const {
-    writeContract,
     writeContractAsync,
     data: writeData,
     isPending: isWritePending,
@@ -198,10 +200,15 @@ export const useLottery = () => {
   // Contract Interactions Functions
   // -----------------------------------
   const approveBetting = async (amount: string) => {
-    if (!address) return toast.error("Please connect your wallet");
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
       const amountBigInt = parseEther(amount);
-      await writeContract({
+
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
         abi: PLATFORM_TOKEN_ABI,
         functionName: "approve",
@@ -209,7 +216,9 @@ export const useLottery = () => {
         account: address,
         chain,
       });
-      toast.success("Approval submitted!");
+
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Approval completed successfully!");
     } catch (error: any) {
       toast.error(`Approval failed: ${error.shortMessage || error.message}`);
       throw error;
@@ -231,7 +240,7 @@ export const useLottery = () => {
       const amountBigInt = parseEther(amount);
       const numbersArray = numbers.map((n) => BigInt(n));
 
-      await writeContract({
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.CORE_CONTRACT,
         abi: LOTTERY_CORE_ABI,
         functionName: "placeBet",
@@ -239,6 +248,8 @@ export const useLottery = () => {
         account: address,
         chain,
       });
+
+      await waitForTransactionReceipt(config, { hash });
       toast.success("Bet placed successfully!");
     } catch (error: any) {
       toast.error(`Bet failed: ${error.shortMessage || error.message}`);
@@ -309,20 +320,34 @@ export const useLottery = () => {
     }
   };
 
-  const getUserBets = async (roundId: number) => {
-    if (!address) return [];
+  // Read contract data for the current round ID
+  const {
+    data: rawBetData,
+    isLoading: isLoadingBet,
+    error: betError,
+    refetch: refetchBet,
+  } = useReadContract({
+    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+    abi: LOTTERY_CORE_ABI,
+    functionName: "getUserRoundBets",
+    args: currentBetId ? [BigInt(currentBetId), address] : undefined,
+    query: {
+      enabled: currentBetId !== null,
+    },
+  });
 
+  // Function to fetch Bet data by ID
+  const getUserbets = async (betId: number) => {
     try {
-      const { data } = await useReadContract({
-        address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-        abi: LOTTERY_CORE_ABI,
-        functionName: "getUserRoundBets",
-        args: [BigInt(roundId), address],
-      });
-      return data || [];
-    } catch (error) {
-      console.error("Failed to get user bets:", error);
-      return [];
+      setCurrentBetId(betId);
+      // If the betId is the same as current, refetch
+      if (currentBetId === betId) {
+        await refetchBet();
+      }
+      toast.success(`Fetching bet ${betId} data...`);
+    } catch (error: any) {
+      toast.error(`Failed to fetch round data: ${error.message}`);
+      throw error;
     }
   };
 
@@ -334,7 +359,8 @@ export const useLottery = () => {
 
     try {
       const indices = betIndices.map((i) => BigInt(i));
-      await writeContract({
+
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESSES.CORE_CONTRACT,
         abi: LOTTERY_CORE_ABI,
         functionName: "claimWinnings",
@@ -342,7 +368,10 @@ export const useLottery = () => {
         account: address,
         chain,
       });
-      toast.success("Claim transaction submitted!");
+
+      // Wait for the transaction to be mined
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Winnings claimed successfully!");
     } catch (error: any) {
       toast.error(`Claim failed: ${error.shortMessage || error.message}`);
       throw error;
@@ -457,6 +486,7 @@ export const useLottery = () => {
     creatorGiftAmountValue: formatEther(creatorGiftAmount),
     userGiftAmountValue: formatEther(userGiftAmount),
     emergencyWithdrawalEnabled,
+    rawBetData: rawBetData,
 
     isLoading:
       currentRoundQuery.isLoading ||
@@ -477,17 +507,19 @@ export const useLottery = () => {
       emergencyWithdrawalEnabledQuery.isLoading,
 
     isWritePending: isWritePending || isConfirming,
+    isLoadingBet: isLoadingBet,
 
     // Functions
     approveBetting,
     placeBet,
     stakeTokens,
     unstakeTokens,
-    getUserBets,
     claimWinnings,
+    getUserbets,
     refetch,
 
     readError,
     writeError,
+    betError,
   };
 };
