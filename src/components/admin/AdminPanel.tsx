@@ -89,6 +89,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
   const [isAuthorizingTransferor, setIsAuthorizingTransferor] = useState(false)
   const [isTogglingEmergencyWithdrawal, setIsTogglingEmergencyWithdrawal] = useState(false)
 
+
+  console.log("roundData: ", roundData);
+
   
   useEffect(() => {
     getRound(1);

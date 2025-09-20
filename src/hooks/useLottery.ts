@@ -5,8 +5,8 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { waitForTransactionReceipt } from "wagmi/actions";
-import { parseEther, formatEther } from "viem";
+import { waitForTransactionReceipt, simulateContract } from "wagmi/actions";
+import { parseEther, formatEther, decodeErrorResult } from "viem";
 import { toast } from "sonner";
 import {
   CONTRACT_ADDRESSES,
@@ -22,6 +22,12 @@ export const useLottery = () => {
 
   // State for managing round queries
   const [currentBetId, setCurrentBetId] = useState<number | null>(null);
+
+  const [fetchingClaimable, setFetchingClaimable] = useState(false);
+
+  const [currentClaimableId, setCurrentClaimableId] = useState<number | null>(
+    null
+  );
 
   // Write contract
   const {
@@ -351,6 +357,40 @@ export const useLottery = () => {
     }
   };
 
+  // Read contract data for the current round ID
+  const {
+    data: rawClaimableData,
+    isLoading: isLoadingClaimable,
+    error: claimableError,
+    refetch: claimableBet,
+  } = useReadContract({
+    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+    abi: LOTTERY_CORE_ABI,
+    functionName: "getClaimableWinnings",
+    args: currentClaimableId
+      ? [BigInt(currentClaimableId), address]
+      : undefined,
+    query: {
+      enabled: currentClaimableId !== null,
+    },
+  });
+
+  // Function to fetch Bet data by ID
+  const getclaimableBet = async (betId: number) => {
+    try {
+      setCurrentClaimableId(betId);
+      // If the betId is the same as current, refetch
+      if (currentClaimableId === betId) {
+        await claimableBet();
+      }
+      toast.success(`Fetching bet ${betId} data...`);
+    } catch (error: any) {
+      console.log("error: ", error);
+      toast.error(`Failed to fetch round data: ${error.message}`);
+      throw error;
+    }
+  };
+
   const claimWinnings = async (roundId: number, betIndices: number[]) => {
     if (!address) {
       toast.error("Please connect your wallet");
@@ -358,23 +398,132 @@ export const useLottery = () => {
     }
 
     try {
+      setFetchingClaimable(true);
       const indices = betIndices.map((i) => BigInt(i));
 
-      const hash = await writeContractAsync({
-        address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-        abi: LOTTERY_CORE_ABI,
-        functionName: "claimWinnings",
-        args: [BigInt(roundId), indices],
-        account: address,
-        chain,
-      });
+      // First, try to simulate the transaction to catch custom errors
+      try {
+        const { request } = await simulateContract(config, {
+          address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+          abi: LOTTERY_CORE_ABI,
+          functionName: "claimWinnings",
+          args: [BigInt(roundId), indices],
+          account: address,
+        });
 
-      // Wait for the transaction to be mined
-      await waitForTransactionReceipt(config, { hash });
-      toast.success("Winnings claimed successfully!");
+        // If simulation passes, execute the transaction
+        const hash = await writeContractAsync(request);
+        await waitForTransactionReceipt(config, { hash });
+        toast.success("Winnings claimed successfully!");
+      } catch (simulationError: any) {
+        // Handle simulation errors (where custom errors are properly decoded)
+        console.log("Simulation error:", simulationError);
+
+        let errorMessage = "Claim failed";
+
+        // Check for custom errors in simulation
+        if (simulationError.data?.errorName) {
+          switch (simulationError.data.errorName) {
+            case "NumbersNotDrawn":
+              errorMessage = "The winning numbers have not been drawn yet.";
+              break;
+            case "NoWinnings":
+              errorMessage = "You have no winnings to claim for this round.";
+              break;
+            case "AlreadyClaimed":
+              errorMessage = "You already claimed winnings for this bet.";
+              break;
+            case "PayoutExceedsMaximum":
+              errorMessage = "This round's payout exceeds the allowed maximum.";
+              break;
+            default:
+              errorMessage = `Contract error: ${simulationError.data.errorName}`;
+          }
+        } else {
+          // Try to decode the error manually
+          try {
+            if (simulationError.data && LOTTERY_CORE_ABI) {
+              const decodedError = decodeErrorResult({
+                abi: LOTTERY_CORE_ABI,
+                data: simulationError.data,
+              });
+              console.log("Decoded simulation error:", decodedError);
+
+              switch (decodedError?.errorName) {
+                case "NumbersNotDrawn":
+                  errorMessage = "The winning numbers have not been drawn yet.";
+                  break;
+                case "NoWinnings":
+                  errorMessage =
+                    "You have no winnings to claim for this round.";
+                  break;
+                case "AlreadyClaimed":
+                  errorMessage = "You already claimed winnings for this bet.";
+                  break;
+                case "PayoutExceedsMaximum":
+                  errorMessage =
+                    "This round's payout exceeds the allowed maximum.";
+                  break;
+              }
+            }
+          } catch (decodeError) {
+            console.log("Could not decode simulation error:", decodeError);
+          }
+
+          // Fallback string matching for simulation errors
+          if (errorMessage === "Claim failed") {
+            // Safe JSON stringify that handles BigInt
+            const errorString = JSON.stringify(simulationError, (key, value) =>
+              typeof value === "bigint" ? value.toString() : value
+            ).toLowerCase();
+            const messageString = (simulationError.message || "").toLowerCase();
+            const shortMessageString = (
+              simulationError.shortMessage || ""
+            ).toLowerCase();
+
+            if (
+              errorString.includes("numbersnotdrawn") ||
+              messageString.includes("numbersnotdrawn") ||
+              shortMessageString.includes("numbersnotdrawn")
+            ) {
+              errorMessage = "The winning numbers have not been drawn yet.";
+            } else if (
+              errorString.includes("nowinnings") ||
+              messageString.includes("nowinnings") ||
+              shortMessageString.includes("nowinnings")
+            ) {
+              errorMessage = "You have no winnings to claim for this round.";
+            } else if (
+              errorString.includes("alreadyclaimed") ||
+              messageString.includes("alreadyclaimed") ||
+              shortMessageString.includes("alreadyclaimed")
+            ) {
+              errorMessage = "You already claimed winnings for this bet.";
+            } else if (
+              errorString.includes("payoutexceedsmaximum") ||
+              messageString.includes("payoutexceedsmaximum") ||
+              shortMessageString.includes("payoutexceedsmaximum")
+            ) {
+              errorMessage = "This round's payout exceeds the allowed maximum.";
+            } else {
+              errorMessage =
+                simulationError.shortMessage ||
+                simulationError.message ||
+                "Transaction would fail";
+            }
+          }
+        }
+
+        throw new Error(errorMessage);
+      }
     } catch (error: any) {
-      toast.error(`Claim failed: ${error.shortMessage || error.message}`);
-      throw error;
+      console.error("Claim error:", error);
+
+      toast.error(error.message || "Claim failed", {
+        position: "top-right",
+      });
+    } finally {
+      setFetchingClaimable(false);
     }
   };
 
@@ -467,6 +616,12 @@ export const useLottery = () => {
       }
     : null;
 
+  const formatrawClaimableData = rawClaimableData
+    ? [formatEther(rawClaimableData[0]), rawClaimableData[1]]
+    : [0n, []];
+
+  const formatrawBetData: any = rawBetData ? rawBetData : [];
+
   // -----------------------------------
   // Return hook data
   // -----------------------------------
@@ -486,7 +641,9 @@ export const useLottery = () => {
     creatorGiftAmountValue: formatEther(creatorGiftAmount),
     userGiftAmountValue: formatEther(userGiftAmount),
     emergencyWithdrawalEnabled,
-    rawBetData: rawBetData,
+    rawBetData: formatrawBetData,
+    rawClaimableData: formatrawClaimableData,
+    fetchingClaimable,
 
     isLoading:
       currentRoundQuery.isLoading ||
@@ -508,6 +665,7 @@ export const useLottery = () => {
 
     isWritePending: isWritePending || isConfirming,
     isLoadingBet: isLoadingBet,
+    isLoadingClaimable: isLoadingClaimable,
 
     // Functions
     approveBetting,
@@ -516,10 +674,12 @@ export const useLottery = () => {
     unstakeTokens,
     claimWinnings,
     getUserbets,
+    getclaimableBet,
     refetch,
 
     readError,
     writeError,
     betError,
+    claimableError,
   };
 };

@@ -48,6 +48,26 @@ export const useLotteryEvents = (
         }
       },
     },
+
+    {
+      address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+      abi: LOTTERY_CORE_ABI,
+      eventName: "WinningsClaimed",
+      handler: (log: any) => {
+        const { roundId, user, amount, matchCount } = log.args;
+        if (normalize(user) === currentUser) {
+          toast.success(
+            `Winning claimed for Round ${roundId}: - ${formatEther(
+              amount || 0n
+            )} PTK`,
+            {
+              position: "top-right",
+            }
+          );
+        }
+      },
+    },
+
     {
       address: CONTRACT_ADDRESSES.CORE_CONTRACT,
       abi: LOTTERY_CORE_ABI,

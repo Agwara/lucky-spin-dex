@@ -11,10 +11,20 @@ import { useLottery } from "@/hooks/useLottery"
 export const ClaimWinnings = () => {
   const { address, } = useAccount()
   
-  const { rawBetData, isLoadingBet, betError, getUserbets } = useLottery()
+  const { 
+    rawBetData, 
+    rawClaimableData, 
+    isLoadingBet, 
+    isLoadingClaimable, 
+    betError, 
+    fetchingClaimable,
+    getUserbets, 
+    getclaimableBet, 
+    claimWinnings 
+  } = useLottery()
 
   const [betRound, setBetRound] = useState("")
-  const [claimingBet, setClaimingBet] = useState(false)
+  const [toggleClicked, setToggleClicked] = useState(false)
 
   const checkField = (inputField:string) => {
     if (!inputField || isNaN(parseInt(inputField)) || parseInt(inputField) <= 0) {
@@ -25,18 +35,34 @@ export const ClaimWinnings = () => {
   }
 
   const handleClaimWinnings = async () => {
+    setToggleClicked(!toggleClicked)
     const roundBetTemp = parseInt(betRound);
     if (checkField(betRound)) {
       toast.error("Please enter a valid ID")
       return
     }
-    console.log("betRound: ", betRound)
     getUserbets(roundBetTemp)
   }
 
+  const handleGetclaimableBet = async () => {
+    const roundBetTemp = parseInt(betRound);
+    if (checkField(betRound)) {
+      toast.error("Please enter a valid ID")
+      return
+    }
+    getclaimableBet(roundBetTemp) 
+  }
+
+  useEffect(() => {
+
+    if (rawBetData.length > 0) {
+      console.log("running effect")
+      claimWinnings(parseInt(betRound), rawBetData) 
+    }
+
+  }, [isLoadingBet, toggleClicked])
 
   console.log("rawBetData: ", rawBetData)
-  console.log("betError: ", betError)
 
   return (
     <Card className="lottery-card w-full">
@@ -60,14 +86,27 @@ export const ClaimWinnings = () => {
             onChange={(e) => setBetRound(e.target.value)}
           />
         </div>
-        <Button
-          className="w-full golden-button text-sm sm:text-base"
-          variant="outline"
-          onClick={handleClaimWinnings}
-          disabled={isLoadingBet}
-        >
-          {isLoadingBet ? "Processing" : "Claim Winnings"}
-        </Button>
+        <div className="space-y-2">
+          <Button
+            className="w-full text-sm"
+            disabled={isLoadingBet || isLoadingClaimable || fetchingClaimable}
+            onClick={handleGetclaimableBet}
+          >
+            {isLoadingClaimable ? "Processing" : "Get Claimable Winnings"}
+          </Button>
+          <Button
+            className="w-full text-sm"
+            onClick={handleClaimWinnings}
+            disabled={isLoadingBet || isLoadingClaimable || fetchingClaimable}
+          >
+            {isLoadingBet || fetchingClaimable ? "Processing" : "Claim Winnings"}
+          </Button>
+        </div>
+
+        <div className="text-xs sm:text-sm text-muted-foreground space-y-1 pt-2 border-t">
+          <p>Total Winnings for round {betRound}: {rawClaimableData[0]} PTK</p>
+          <p>Bet Positions: {rawClaimableData[1].map((elem:any) => <span>{elem}</span>)}</p>
+        </div>
         
       </CardContent>
     </Card>

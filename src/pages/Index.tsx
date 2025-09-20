@@ -46,6 +46,8 @@ const Index = () => {
     await refetch();
   }
 
+  console.log("allowance: ", allowance)
+
   const handlePlaceBet = async (numbers: number[], amount: string) => {
     if (!isEligible) {
       toast.error("You need to stake tokens first to participate!")
@@ -60,8 +62,7 @@ const Index = () => {
         toast.info("Approving tokens for betting...")
         await approveBetting((betAmount * 2).toString()) // Approve 2x for future bets
         // After approval, the user needs to place the bet again
-        toast.info("Approval complete! Please place your bet again.")
-        return
+        toast.info("Approval complete! Placing bet...")
       }
 
       await placeBet(numbers, amount)
