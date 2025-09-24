@@ -6,7 +6,7 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi";
 import { waitForTransactionReceipt, simulateContract } from "wagmi/actions";
-import { parseEther, formatEther, decodeErrorResult } from "viem";
+import { parseEther, formatEther } from "viem";
 import { toast } from "sonner";
 import {
   CONTRACT_ADDRESSES,
@@ -15,6 +15,7 @@ import {
   GIFT_CONTRACT_ABI,
 } from "../lib/contracts";
 import { config } from "../lib/web3"; // Your wagmi config
+import { readContract } from "wagmi/actions";
 
 export const useLottery = () => {
   const { address, isConnected, chain } = useAccount();
@@ -24,6 +25,8 @@ export const useLottery = () => {
   const [currentBetId, setCurrentBetId] = useState<number | null>(null);
 
   const [fetchingClaimable, setFetchingClaimable] = useState(false);
+
+  const [gettingBetDetails, setGettingBetDetails] = useState(false);
 
   const [currentClaimableId, setCurrentClaimableId] = useState<number | null>(
     null
@@ -173,6 +176,55 @@ export const useLottery = () => {
     query: { enabled: isConnected },
   });
 
+  // Read contract data for the current round ID
+  const {
+    data: rawBetData,
+    isLoading: isLoadingBet,
+    error: betError,
+    refetch: refetchBet,
+  } = useReadContract({
+    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+    abi: LOTTERY_CORE_ABI,
+    functionName: "getUserRoundBets",
+    args: currentBetId ? [BigInt(currentBetId), address] : undefined,
+    query: {
+      enabled: currentBetId !== null,
+    },
+  });
+
+  // Read contract data for the current round ID
+  const {
+    data: rawClaimableData,
+    isLoading: isLoadingClaimable,
+    error: claimableError,
+    refetch: claimableBet,
+  } = useReadContract({
+    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+    abi: LOTTERY_CORE_ABI,
+    functionName: "getClaimableWinnings",
+    args: currentClaimableId
+      ? [BigInt(currentClaimableId), address]
+      : undefined,
+    query: {
+      enabled: currentClaimableId !== null,
+    },
+  });
+
+  const getBetForRound = async (roundId: number, betIndex: number) => {
+    try {
+      const betData = await readContract(config, {
+        address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+        abi: LOTTERY_CORE_ABI,
+        functionName: "getBet",
+        args: [BigInt(roundId), BigInt(betIndex)],
+      } as any);
+      return betData;
+    } catch (err) {
+      console.error("getBetForRound error:", err);
+      throw err;
+    }
+  };
+
   // -----------------------------------
   // Handle errors
   // -----------------------------------
@@ -198,7 +250,6 @@ export const useLottery = () => {
     emergencyWithdrawalEnabledQuery.error;
 
   useEffect(() => {
-    console.log("readError: ", readError);
     if (readError) toast.error(`Failed to fetch data: ${readError.message}`);
   }, [readError]);
 
@@ -326,22 +377,6 @@ export const useLottery = () => {
     }
   };
 
-  // Read contract data for the current round ID
-  const {
-    data: rawBetData,
-    isLoading: isLoadingBet,
-    error: betError,
-    refetch: refetchBet,
-  } = useReadContract({
-    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-    abi: LOTTERY_CORE_ABI,
-    functionName: "getUserRoundBets",
-    args: currentBetId ? [BigInt(currentBetId), address] : undefined,
-    query: {
-      enabled: currentBetId !== null,
-    },
-  });
-
   // Function to fetch Bet data by ID
   const getUserbets = async (betId: number) => {
     try {
@@ -356,24 +391,6 @@ export const useLottery = () => {
       throw error;
     }
   };
-
-  // Read contract data for the current round ID
-  const {
-    data: rawClaimableData,
-    isLoading: isLoadingClaimable,
-    error: claimableError,
-    refetch: claimableBet,
-  } = useReadContract({
-    address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-    abi: LOTTERY_CORE_ABI,
-    functionName: "getClaimableWinnings",
-    args: currentClaimableId
-      ? [BigInt(currentClaimableId), address]
-      : undefined,
-    query: {
-      enabled: currentClaimableId !== null,
-    },
-  });
 
   // Function to fetch Bet data by ID
   const getclaimableBet = async (betId: number) => {
@@ -391,137 +408,73 @@ export const useLottery = () => {
     }
   };
 
-  const claimWinnings = async (roundId: number, betIndices: number[]) => {
-    if (!address) {
-      toast.error("Please connect your wallet");
-      return;
+  const getBetDetails = async (roundBetTemp: number) => {
+    try {
+      setGettingBetDetails(true);
+      if (formatrawBetData.length > 0) {
+        const allBets = await Promise.all(
+          formatrawBetData.map(async (betIndex: number) => {
+            const betData = await getBetForRound(roundBetTemp, betIndex);
+            return betData;
+          })
+        );
+        return allBets;
+      } else {
+        return [];
+      }
+    } catch (e: any) {
+      console.log("e: ", e);
+      return [];
+    } finally {
+      setGettingBetDetails(false);
+    }
+  };
+
+  const getErrorMessage = (err: any): string => {
+    const map: Record<string, string> = {
+      NumbersNotDrawn: "The winning numbers have not been drawn yet.",
+      NoWinnings: "You have no winnings to claim for this round.",
+      AlreadyClaimed: "You already claimed winnings for this bet.",
+      PayoutExceedsMaximum:
+        "Payout for this round exceeds the allowed maximum.",
+    };
+
+    const errorName =
+      err?.cause?.data?.errorName || // <-- the important one from your logs
+      err?.cause?.errorName ||
+      err?.cause?.cause?.errorName ||
+      err?.data?.errorName;
+
+    if (errorName && map[errorName]) {
+      return map[errorName];
     }
 
+    return "Transaction failed. Please try again.";
+  };
+
+  const claimWinnings = async (roundId: number) => {
+    if (!address) return toast.error("Please connect your wallet");
     try {
+      // await refetchBet();
       setFetchingClaimable(true);
-      const indices = betIndices.map((i) => BigInt(i));
+      const indices = formatrawBetData.map(BigInt);
 
-      // First, try to simulate the transaction to catch custom errors
-      try {
-        const { request } = await simulateContract(config, {
-          address: CONTRACT_ADDRESSES.CORE_CONTRACT,
-          abi: LOTTERY_CORE_ABI,
-          functionName: "claimWinnings",
-          args: [BigInt(roundId), indices],
-          account: address,
-        });
+      const { request } = await simulateContract(config, {
+        address: CONTRACT_ADDRESSES.CORE_CONTRACT,
+        abi: LOTTERY_CORE_ABI,
+        functionName: "claimWinnings",
+        args: [BigInt(roundId), indices],
+        account: address,
+      });
 
-        // If simulation passes, execute the transaction
-        const hash = await writeContractAsync(request);
-        await waitForTransactionReceipt(config, { hash });
-        toast.success("Winnings claimed successfully!");
-      } catch (simulationError: any) {
-        // Handle simulation errors (where custom errors are properly decoded)
-        console.log("Simulation error:", simulationError);
-
-        let errorMessage = "Claim failed";
-
-        // Check for custom errors in simulation
-        if (simulationError.data?.errorName) {
-          switch (simulationError.data.errorName) {
-            case "NumbersNotDrawn":
-              errorMessage = "The winning numbers have not been drawn yet.";
-              break;
-            case "NoWinnings":
-              errorMessage = "You have no winnings to claim for this round.";
-              break;
-            case "AlreadyClaimed":
-              errorMessage = "You already claimed winnings for this bet.";
-              break;
-            case "PayoutExceedsMaximum":
-              errorMessage = "This round's payout exceeds the allowed maximum.";
-              break;
-            default:
-              errorMessage = `Contract error: ${simulationError.data.errorName}`;
-          }
-        } else {
-          // Try to decode the error manually
-          try {
-            if (simulationError.data && LOTTERY_CORE_ABI) {
-              const decodedError = decodeErrorResult({
-                abi: LOTTERY_CORE_ABI,
-                data: simulationError.data,
-              });
-              console.log("Decoded simulation error:", decodedError);
-
-              switch (decodedError?.errorName) {
-                case "NumbersNotDrawn":
-                  errorMessage = "The winning numbers have not been drawn yet.";
-                  break;
-                case "NoWinnings":
-                  errorMessage =
-                    "You have no winnings to claim for this round.";
-                  break;
-                case "AlreadyClaimed":
-                  errorMessage = "You already claimed winnings for this bet.";
-                  break;
-                case "PayoutExceedsMaximum":
-                  errorMessage =
-                    "This round's payout exceeds the allowed maximum.";
-                  break;
-              }
-            }
-          } catch (decodeError) {
-            console.log("Could not decode simulation error:", decodeError);
-          }
-
-          // Fallback string matching for simulation errors
-          if (errorMessage === "Claim failed") {
-            // Safe JSON stringify that handles BigInt
-            const errorString = JSON.stringify(simulationError, (key, value) =>
-              typeof value === "bigint" ? value.toString() : value
-            ).toLowerCase();
-            const messageString = (simulationError.message || "").toLowerCase();
-            const shortMessageString = (
-              simulationError.shortMessage || ""
-            ).toLowerCase();
-
-            if (
-              errorString.includes("numbersnotdrawn") ||
-              messageString.includes("numbersnotdrawn") ||
-              shortMessageString.includes("numbersnotdrawn")
-            ) {
-              errorMessage = "The winning numbers have not been drawn yet.";
-            } else if (
-              errorString.includes("nowinnings") ||
-              messageString.includes("nowinnings") ||
-              shortMessageString.includes("nowinnings")
-            ) {
-              errorMessage = "You have no winnings to claim for this round.";
-            } else if (
-              errorString.includes("alreadyclaimed") ||
-              messageString.includes("alreadyclaimed") ||
-              shortMessageString.includes("alreadyclaimed")
-            ) {
-              errorMessage = "You already claimed winnings for this bet.";
-            } else if (
-              errorString.includes("payoutexceedsmaximum") ||
-              messageString.includes("payoutexceedsmaximum") ||
-              shortMessageString.includes("payoutexceedsmaximum")
-            ) {
-              errorMessage = "This round's payout exceeds the allowed maximum.";
-            } else {
-              errorMessage =
-                simulationError.shortMessage ||
-                simulationError.message ||
-                "Transaction would fail";
-            }
-          }
-        }
-
-        throw new Error(errorMessage);
-      }
+      const hash = await writeContractAsync(request);
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Winnings claimed successfully!");
     } catch (error: any) {
       console.error("Claim error:", error);
 
-      toast.error(error.message || "Claim failed", {
-        position: "top-right",
-      });
+      const shortMsg = getErrorMessage(error); // <- use your mapper
+      toast.error(shortMsg, { position: "top-right" });
     } finally {
       setFetchingClaimable(false);
     }
@@ -666,6 +619,8 @@ export const useLottery = () => {
     isWritePending: isWritePending || isConfirming,
     isLoadingBet: isLoadingBet,
     isLoadingClaimable: isLoadingClaimable,
+    gettingBetDetails: gettingBetDetails,
+    currentBetId,
 
     // Functions
     approveBetting,
@@ -676,6 +631,8 @@ export const useLottery = () => {
     getUserbets,
     getclaimableBet,
     refetch,
+    getBetDetails,
+    setCurrentBetId,
 
     readError,
     writeError,
