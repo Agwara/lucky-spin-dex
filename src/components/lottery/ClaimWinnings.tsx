@@ -11,7 +11,6 @@ import { useState } from "react"
 import { formatEther } from "viem";
 
 export const ClaimWinnings = () => {
-  const { address, } = useAccount()
   
   const {  
     rawClaimableData,  
