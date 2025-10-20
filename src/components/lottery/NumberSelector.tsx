@@ -1,72 +1,78 @@
-import { useState } from "react"
-import { LotteryBall } from "./LotteryBall"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Shuffle, Trash2, Play } from "lucide-react"
-import { toast } from "sonner"
+import { useState } from "react";
+import { LotteryBall } from "./LotteryBall";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Shuffle, Trash2, Play } from "lucide-react";
+import { toast } from "sonner";
 
 interface NumberSelectorProps {
-  onPlaceBet: (numbers: number[], amount: string) => void
-  disabled?: boolean
-  minBetAmount?: string
-  maxBetAmount?: string
+  onPlaceBet: (numbers: number[], amount: string) => void;
+  disabled?: boolean;
+  minBetAmount?: string;
+  maxBetAmount?: string;
 }
 
-export const NumberSelector = ({ 
-  onPlaceBet, 
-  disabled = false, 
+export const NumberSelector = ({
+  onPlaceBet,
+  disabled = false,
   minBetAmount = "1",
-  maxBetAmount = "1000"
+  maxBetAmount = "1000",
 }: NumberSelectorProps) => {
-  const [selectedNumbers, setSelectedNumbers] = useState<number[]>([])
-  const [betAmount, setBetAmount] = useState(minBetAmount)
+  const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
+  const [betAmount, setBetAmount] = useState(minBetAmount);
 
   const toggleNumber = (number: number) => {
     if (selectedNumbers.includes(number)) {
-      setSelectedNumbers(selectedNumbers.filter(n => n !== number))
+      setSelectedNumbers(selectedNumbers.filter((n) => n !== number));
     } else if (selectedNumbers.length < 5) {
-      setSelectedNumbers([...selectedNumbers, number].sort((a, b) => a - b))
+      setSelectedNumbers([...selectedNumbers, number].sort((a, b) => a - b));
     } else {
-      toast.error("You can only select 5 numbers!")
+      toast.error("You can only select 5 numbers!");
     }
-  }
+  };
 
   const generateRandomNumbers = () => {
-    const numbers: number[] = []
+    const numbers: number[] = [];
     while (numbers.length < 5) {
-      const randomNum = Math.floor(Math.random() * 49) + 1
+      const randomNum = Math.floor(Math.random() * 49) + 1;
       if (!numbers.includes(randomNum)) {
-        numbers.push(randomNum)
+        numbers.push(randomNum);
       }
     }
-    setSelectedNumbers(numbers.sort((a, b) => a - b))
-  }
+    setSelectedNumbers(numbers.sort((a, b) => a - b));
+  };
 
   const clearSelection = () => {
-    setSelectedNumbers([])
-  }
+    setSelectedNumbers([]);
+  };
 
   const handlePlaceBet = () => {
     if (selectedNumbers.length !== 5) {
-      toast.error("Please select exactly 5 numbers!")
-      return
-    }
-    
-    const amount = parseFloat(betAmount)
-    if (amount < parseFloat(minBetAmount)) {
-      toast.error(`Minimum bet amount is ${minBetAmount} PTK`)
-      return
-    }
-    
-    if (amount > parseFloat(maxBetAmount)) {
-      toast.error(`Maximum bet amount is ${maxBetAmount} PTK`)
-      return
+      toast.error("Please select exactly 5 numbers!");
+      return;
     }
 
-    onPlaceBet(selectedNumbers, betAmount)
-  }
+    const amount = parseFloat(betAmount);
+    if (amount < parseFloat(minBetAmount)) {
+      toast.error(`Minimum bet amount is ${minBetAmount} PTK`);
+      return;
+    }
+
+    if (amount > parseFloat(maxBetAmount)) {
+      toast.error(`Maximum bet amount is ${maxBetAmount} PTK`);
+      return;
+    }
+
+    onPlaceBet(selectedNumbers, betAmount);
+  };
 
   return (
     <Card className="lottery-card w-full">
@@ -76,23 +82,25 @@ export const NumberSelector = ({
           Select Your Lucky Numbers
         </CardTitle>
         <CardDescription className="text-sm sm:text-base text-muted-foreground">
-          Choose 5 numbers from 1 to 49. The more numbers you match, the bigger your prize!
+          Choose 5 numbers from 1 to 49. The more numbers you match, the bigger
+          your prize!
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Number Grid */}
-        <div className="
+        <div
+          className="
           grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-7 
           gap-2 sm:gap-3 p-2 sm:p-4 bg-muted/20 rounded-lg
-        ">
+        "
+        >
           {Array.from({ length: 49 }, (_, i) => i + 1).map((number) => (
             <LotteryBall
               key={number}
               number={number}
               selected={selectedNumbers.includes(number)}
               onClick={() => toggleNumber(number)}
-              disabled={disabled}
               size="sm"
             />
           ))}
@@ -100,10 +108,14 @@ export const NumberSelector = ({
 
         {/* Selected Numbers */}
         <div className="space-y-2 sm:space-y-3">
-          <Label className="text-base sm:text-lg font-semibold">Your Selection:</Label>
+          <Label className="text-base sm:text-lg font-semibold">
+            Your Selection:
+          </Label>
           <div className="flex flex-wrap gap-2 sm:gap-3 min-h-[50px] sm:min-h-[60px] p-2 sm:p-4 bg-muted/20 rounded-lg">
             {selectedNumbers.length === 0 ? (
-              <span className="text-muted-foreground italic text-sm sm:text-base">No numbers selected</span>
+              <span className="text-muted-foreground italic text-sm sm:text-base">
+                No numbers selected
+              </span>
             ) : (
               selectedNumbers.map((number, index) => (
                 <LotteryBall
@@ -122,17 +134,16 @@ export const NumberSelector = ({
           <Button
             variant="outline"
             onClick={generateRandomNumbers}
-            disabled={disabled}
             className="flex-1"
           >
             <Shuffle className="w-4 h-4 mr-2" />
             Lucky Dip
           </Button>
-          
+
           <Button
             variant="outline"
             onClick={clearSelection}
-            disabled={disabled || selectedNumbers.length === 0}
+            disabled={selectedNumbers.length === 0}
             className="flex-1"
           >
             <Trash2 className="w-4 h-4 mr-2" />
@@ -142,7 +153,10 @@ export const NumberSelector = ({
 
         {/* Bet Amount */}
         <div className="space-y-1 sm:space-y-2">
-          <Label htmlFor="bet-amount" className="text-base sm:text-lg font-semibold">
+          <Label
+            htmlFor="bet-amount"
+            className="text-base sm:text-lg font-semibold"
+          >
             Bet Amount (PTK):
           </Label>
           <Input
@@ -153,7 +167,7 @@ export const NumberSelector = ({
             min={minBetAmount}
             max={maxBetAmount}
             step="0.01"
-            disabled={disabled}
+            // disabled={disabled}
             className="text-base sm:text-lg"
           />
           <p className="text-xs sm:text-sm text-muted-foreground">
@@ -164,7 +178,7 @@ export const NumberSelector = ({
         {/* Place Bet Button */}
         <Button
           onClick={handlePlaceBet}
-          disabled={disabled || selectedNumbers.length !== 5}
+          disabled={selectedNumbers.length !== 5}
           className="w-full golden-button text-base sm:text-lg py-4 sm:py-6"
           size="lg"
         >
@@ -173,6 +187,5 @@ export const NumberSelector = ({
         </Button>
       </CardContent>
     </Card>
-
-  )
-}
+  );
+};

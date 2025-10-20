@@ -1,25 +1,50 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Wallet, LogOut, Copy, ExternalLink } from "lucide-react"
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { toast } from "sonner"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Wallet, LogOut, Copy, ExternalLink } from "lucide-react";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { toast } from "sonner";
+import { useLottery } from "@/hooks/useLottery";
+import { useState } from "react";
 
 export const WalletConnect = () => {
-  const { address, isConnected, connector } = useAccount()
-  const { connect, connectors, isPending } = useConnect()
-  const { disconnect } = useDisconnect()
+  const { address, isConnected, connector } = useAccount();
+  const { connect, connectors, isPending } = useConnect();
+  const { disconnect } = useDisconnect();
+
+  const { isEligibleForBonus, claimBonusAndStake } = useLottery();
+
+  const [isClaimingBonus, setIsClaimingBonus] = useState(false);
+
+  const handleClaimBonus = async () => {
+    setIsClaimingBonus(true);
+    try {
+      await claimBonusAndStake();
+    } catch (error: any) {
+      toast.error(
+        `Failed to claim and stake bonus: ${error?.message || error.toString()}`
+      );
+    } finally {
+      setIsClaimingBonus(false);
+    }
+  };
 
   const copyAddress = () => {
     if (address) {
-      navigator.clipboard.writeText(address)
-      toast.success("Address copied to clipboard!")
+      navigator.clipboard.writeText(address);
+      toast.success("Address copied to clipboard!");
     }
-  }
+  };
 
   const formatAddress = (addr: string) => {
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`
-  }
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
 
   if (isConnected && address) {
     return (
@@ -34,9 +59,15 @@ export const WalletConnect = () => {
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <Badge className="bg-lottery-win text-white mb-2">Connected</Badge>
-              <p className="font-mono text-sm break-all">{formatAddress(address)}</p>
-              <p className="text-xs text-muted-foreground">via {connector?.name}</p>
+              <Badge className="bg-lottery-win text-white mb-2">
+                Connected
+              </Badge>
+              <p className="font-mono text-sm break-all">
+                {formatAddress(address)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                via {connector?.name}
+              </p>
             </div>
           </div>
 
@@ -55,7 +86,9 @@ export const WalletConnect = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.open(`https://etherscan.io/address/${address}`, '_blank')}
+              onClick={() =>
+                window.open(`https://etherscan.io/address/${address}`, "_blank")
+              }
               className="flex-1 p-1"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
@@ -72,9 +105,20 @@ export const WalletConnect = () => {
               Disconnect
             </Button>
           </div>
+
+          {isEligibleForBonus && (
+            <Button
+              disabled={isClaimingBonus}
+              onClick={handleClaimBonus}
+              className="w-full text-sm"
+              size="sm"
+            >
+              Get Bonus
+            </Button>
+          )}
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -99,10 +143,10 @@ export const WalletConnect = () => {
             variant="outline"
           >
             Connect with {connector.name}
-            {isPending && connector.name && ' (connecting...)'}
+            {isPending && connector.name && " (connecting...)"}
           </Button>
         ))}
       </CardContent>
     </Card>
-  )
-}
+  );
+};

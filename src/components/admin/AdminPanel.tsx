@@ -1,102 +1,104 @@
-import { useEffect, useState } from "react"
-import { useAccount } from 'wagmi'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Shield, 
-  Settings, 
-  DollarSign, 
-  Gift, 
-  Pause, 
-  Play, 
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import {
+  Shield,
+  Settings,
+  DollarSign,
+  Gift,
+  Pause,
+  Play,
   AlertTriangle,
   Clock,
   Users,
   History,
   Info,
-  Gamepad
-} from "lucide-react"
-import { toast } from "sonner"
-import { useAdmin } from "@/hooks/useAdmin"
-import { useLottery } from "@/hooks/useLottery"
+  Gamepad,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useLottery } from "@/hooks/useLottery";
 
 interface AdminPanelProps {
-  isAdmin: boolean
-  loading?: boolean
+  isAdmin: boolean;
+  loading?: boolean;
 }
 
 export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
-  const { address } = useAccount()
-  const { 
-    giftReserveStatus, 
-    maxPayoutPerRound, 
-    coreContractTokenBalance, 
+  const { address } = useAccount();
+  const {
+    giftReserveStatus,
+    maxPayoutPerRound,
+    coreContractTokenBalance,
     currentRound,
-    giftRecipientsCountValue, 
-    creatorGiftAmountValue, 
-    userGiftAmountValue, 
-    emergencyWithdrawalEnabled 
-  } = useLottery()
+    giftRecipientsCountValue,
+    creatorGiftAmountValue,
+    userGiftAmountValue,
+    emergencyWithdrawalEnabled,
+  } = useLottery();
 
-  const { 
-    roundData, 
-    isLoadingRound, 
-    roundError, 
-    allowance, 
-    isUnpausing, 
-    isPausing, 
-    emergencyWithdraw, 
-    updateGiftSettings, 
+  const {
+    roundData,
+    isLoadingRound,
+    roundError,
+    allowance,
+    isUnpausing,
+    isPausing,
+    emergencyWithdraw,
+    updateGiftSettings,
     handleSetAuthorizedBurner,
-    handleSetAuthorizedTransferor, 
-    toggleEmergencyWithdrawal, 
+    handleSetAuthorizedTransferor,
+    toggleEmergencyWithdrawal,
     endCurrentRound,
-    scheduleMaxPayoutChange, 
-    setMaxPayoutPerRound, 
-    pauseLottery, 
-    unPauseLottery, 
-    getRound, 
-    fundGiftReserve 
+    scheduleMaxPayoutChange,
+    setMaxPayoutPerRound,
+    pauseLottery,
+    unPauseLottery,
+    getRound,
+    fundGiftReserve,
   } = useAdmin();
- 
-  const [roundeID, setRoundId] = useState("0")
+
+  const [roundeID, setRoundId] = useState("0");
 
   // Core Contract Admin States
-  const [maxPayoutAmount, setMaxPayoutAmount] = useState("")
-  const [isSchedulingPayout, setIsSchedulingPayout] = useState(false)
-  const [isSettingPayout, setIsSettingPayout] = useState(false)
-  const [emergencyWithdrawAmount, setEmergencyWithdrawAmount] = useState("")
-  const [isEmergencyWithdraw, setIsEmergencyWithdraw] = useState(false)
-  const [endingCurrentRound, setEndingCurrentRound] = useState(false)
+  const [maxPayoutAmount, setMaxPayoutAmount] = useState("");
+  const [isSchedulingPayout, setIsSchedulingPayout] = useState(false);
+  const [isSettingPayout, setIsSettingPayout] = useState(false);
+  const [emergencyWithdrawAmount, setEmergencyWithdrawAmount] = useState("");
+  const [isEmergencyWithdraw, setIsEmergencyWithdraw] = useState(false);
+  const [endingCurrentRound, setEndingCurrentRound] = useState(false);
 
   // Gift Contract Admin States
-  const [giftRecipientsCount, setGiftRecipientsCount] = useState("")
-  const [creatorGiftAmount, setCreatorGiftAmount] = useState("")
-  const [userGiftAmount, setUserGiftAmount] = useState("")
-  const [isUpdatingGiftSettings, setIsUpdatingGiftSettings] = useState(false)
-  const [giftReserveFundAmount, setGiftReserveFundAmount] = useState("")
-  const [isFundingReserve, setIsFundingReserve] = useState(false)
+  const [giftRecipientsCount, setGiftRecipientsCount] = useState("");
+  const [creatorGiftAmount, setCreatorGiftAmount] = useState("");
+  const [userGiftAmount, setUserGiftAmount] = useState("");
+  const [isUpdatingGiftSettings, setIsUpdatingGiftSettings] = useState(false);
+  const [giftReserveFundAmount, setGiftReserveFundAmount] = useState("");
+  const [isFundingReserve, setIsFundingReserve] = useState(false);
 
   // Platform Token Admin States
-  const [authorizedBurner, setAuthorizedBurner] = useState("")
-  const [isAuthorizingBurner, setIsAuthorizingBurner] = useState(false)
-  const [authorizedTransferor, setAuthorizedTransferor] = useState("")
-  const [isAuthorizingTransferor, setIsAuthorizingTransferor] = useState(false)
-  const [isTogglingEmergencyWithdrawal, setIsTogglingEmergencyWithdrawal] = useState(false)
+  const [authorizedBurner, setAuthorizedBurner] = useState("");
+  const [isAuthorizingBurner, setIsAuthorizingBurner] = useState(false);
+  const [authorizedTransferor, setAuthorizedTransferor] = useState("");
+  const [isAuthorizingTransferor, setIsAuthorizingTransferor] = useState(false);
+  const [isTogglingEmergencyWithdrawal, setIsTogglingEmergencyWithdrawal] =
+    useState(false);
 
-
-  console.log("roundData: ", roundData);
-
-  
   useEffect(() => {
     getRound(1);
-  }, [])
-
+  }, []);
 
   if (!isAdmin) {
     return (
@@ -105,176 +107,192 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
           <Shield className="h-4 w-4" />
           <AlertTitle>Access Denied</AlertTitle>
           <AlertDescription>
-            You don't have administrator privileges. Only authorized admin accounts can access this section.
+            You don't have administrator privileges. Only authorized admin
+            accounts can access this section.
           </AlertDescription>
         </Alert>
       </div>
-    )
+    );
   }
 
   const handleScheduleMaxPayoutChange = async () => {
     if (checkField(maxPayoutAmount)) {
-      toast.error("Please enter a valid amount")
-      return
+      toast.error("Please enter a valid amount");
+      return;
     }
 
-    setIsSchedulingPayout(true)
+    setIsSchedulingPayout(true);
     try {
-      await scheduleMaxPayoutChange(maxPayoutAmount)
+      await scheduleMaxPayoutChange(maxPayoutAmount);
     } catch (error) {
-      toast.error("Failed to schedule max payout change")
+      toast.error("Failed to schedule max payout change");
     } finally {
-      setIsSchedulingPayout(false)
+      setIsSchedulingPayout(false);
     }
-  }
+  };
 
   const handleSetMaxPayout = async () => {
     if (checkField(maxPayoutAmount)) {
-      toast.error("Please enter a valid amount")
-      return
+      toast.error("Please enter a valid amount");
+      return;
     }
-    setIsSettingPayout(true)
+    setIsSettingPayout(true);
     try {
-      await setMaxPayoutPerRound(maxPayoutAmount)
+      await setMaxPayoutPerRound(maxPayoutAmount);
     } catch (error) {
-      toast.error("Failed to update max payout")
+      toast.error("Failed to update max payout");
     } finally {
-      setIsSettingPayout(false)
+      setIsSettingPayout(false);
     }
-  }
+  };
 
   const handlePause = async () => {
     await pauseLottery();
-  }
+  };
 
   const handleUnpause = async () => {
     await unPauseLottery();
+  };
 
-  }
-
-  const checkField = (inputField:string) => {
-    if (!inputField || isNaN(parseInt(inputField)) || parseInt(inputField) <= 0) {
-      return true
+  const checkField = (inputField: string) => {
+    if (
+      !inputField ||
+      isNaN(parseInt(inputField)) ||
+      parseInt(inputField) <= 0
+    ) {
+      return true;
     } else {
-      return false
+      return false;
     }
-  }
+  };
 
   const handleEmergencyWithdraw = async () => {
     if (checkField(emergencyWithdrawAmount)) {
-      toast.error("Please enter a valid amount")
-      return
+      toast.error("Please enter a valid amount");
+      return;
     }
 
-    setIsEmergencyWithdraw(true)
+    setIsEmergencyWithdraw(true);
     try {
-      await emergencyWithdraw(emergencyWithdrawAmount)
-      setEmergencyWithdrawAmount("")
+      await emergencyWithdraw(emergencyWithdrawAmount);
+      setEmergencyWithdrawAmount("");
     } catch (error) {
-      toast.error("Emergency withdrawal failed")
+      toast.error("Emergency withdrawal failed");
     } finally {
-      setIsEmergencyWithdraw(false)
+      setIsEmergencyWithdraw(false);
     }
-  }
+  };
 
   const handleUpdateGiftSettings = async () => {
-    if (checkField(giftRecipientsCount) || checkField(creatorGiftAmount) || checkField(userGiftAmount)) {
-      toast.error("Please fill in all gift settings fields properly")
-      return
+    if (
+      checkField(giftRecipientsCount) ||
+      checkField(creatorGiftAmount) ||
+      checkField(userGiftAmount)
+    ) {
+      toast.error("Please fill in all gift settings fields properly");
+      return;
     }
 
-    setIsUpdatingGiftSettings(true)
+    setIsUpdatingGiftSettings(true);
     try {
-      await updateGiftSettings(giftRecipientsCount, creatorGiftAmount, userGiftAmount)
+      await updateGiftSettings(
+        giftRecipientsCount,
+        creatorGiftAmount,
+        userGiftAmount
+      );
     } catch (error) {
-      toast.error("Failed to update gift settings")
+      toast.error("Failed to update gift settings");
     } finally {
-      setIsUpdatingGiftSettings(false)
-      setGiftRecipientsCount("")
-      setCreatorGiftAmount("")
-      setUserGiftAmount("")
+      setIsUpdatingGiftSettings(false);
+      setGiftRecipientsCount("");
+      setCreatorGiftAmount("");
+      setUserGiftAmount("");
     }
-  }
+  };
 
   const handleFundGiftReserve = async () => {
     if (checkField(giftReserveFundAmount)) {
-      toast.error("Please enter a valid amount")
-      return
+      toast.error("Please enter a valid amount");
+      return;
     }
 
-    setIsFundingReserve(true)
+    setIsFundingReserve(true);
     try {
-      await fundGiftReserve(giftReserveFundAmount)
-      toast.success("Gift reserve funded successfully")
-      setGiftReserveFundAmount("")
+      await fundGiftReserve(giftReserveFundAmount);
+      toast.success("Gift reserve funded successfully");
+      setGiftReserveFundAmount("");
     } catch (error) {
-      console.log("error two: ", error)
-      toast.error("Failed to fund gift reserve")
+      console.log("error two: ", error);
+      toast.error("Failed to fund gift reserve");
     } finally {
-      setIsFundingReserve(false)
+      setIsFundingReserve(false);
     }
-  }
+  };
 
   const handleAuthorizeburner = async (authorize: boolean) => {
     if (!authorizedBurner) {
-      toast.error("Please enter a valid address")
-      return
+      toast.error("Please enter a valid address");
+      return;
     }
 
-    setIsAuthorizingBurner(true)
+    setIsAuthorizingBurner(true);
     try {
-      await handleSetAuthorizedBurner(authorizedBurner, authorize)
-      if (authorize) setAuthorizedBurner("")
+      await handleSetAuthorizedBurner(authorizedBurner, authorize);
+      if (authorize) setAuthorizedBurner("");
     } catch (error) {
-      toast.error(`Failed to ${authorize ? 'authorize' : 'deauthorize'} burner`)
+      toast.error(
+        `Failed to ${authorize ? "authorize" : "deauthorize"} burner`
+      );
     } finally {
-      setIsAuthorizingBurner(false)
+      setIsAuthorizingBurner(false);
     }
-  }
+  };
 
   const handleAuthorizeTransferor = async (authorize: boolean) => {
     if (!authorizedTransferor) {
-      toast.error("Please enter a valid address")
-      return
+      toast.error("Please enter a valid address");
+      return;
     }
 
-    setIsAuthorizingTransferor(true)
+    setIsAuthorizingTransferor(true);
     try {
-      await handleSetAuthorizedTransferor(authorizedTransferor, authorize)
-      if (authorize) setAuthorizedTransferor("")
+      await handleSetAuthorizedTransferor(authorizedTransferor, authorize);
+      if (authorize) setAuthorizedTransferor("");
     } catch (error) {
-      toast.error(`Failed to ${authorize ? 'authorize' : 'deauthorize'} transferor`)
+      toast.error(
+        `Failed to ${authorize ? "authorize" : "deauthorize"} transferor`
+      );
     } finally {
-      setIsAuthorizingTransferor(false)
+      setIsAuthorizingTransferor(false);
     }
-  }
+  };
 
   const handleToggleEmergencyWithdrawal = async () => {
-    setIsTogglingEmergencyWithdrawal(true)
+    setIsTogglingEmergencyWithdrawal(true);
     try {
-      await toggleEmergencyWithdrawal(!emergencyWithdrawalEnabled)
+      await toggleEmergencyWithdrawal(!emergencyWithdrawalEnabled);
     } catch (error) {
-      toast.error("Failed to toggle emergency withdrawal")
+      toast.error("Failed to toggle emergency withdrawal");
     } finally {
-      setIsTogglingEmergencyWithdrawal(false)
+      setIsTogglingEmergencyWithdrawal(false);
     }
-  }
+  };
 
   const handleEndCurrentRound = async () => {
-    setEndingCurrentRound(true)
+    setEndingCurrentRound(true);
     try {
-      await endCurrentRound()
+      await endCurrentRound();
     } catch (error) {
-      toast.error("Failed to toggle emergency withdrawal")
+      toast.error("Failed to toggle emergency withdrawal");
     } finally {
-      setEndingCurrentRound(false)
+      setEndingCurrentRound(false);
     }
-  }
+  };
 
   const handleFetchRound = () => {
     const roundIdTemp = parseInt(roundeID);
     if (isNaN(roundIdTemp) || roundIdTemp <= 0) {
-      toast.error('Please enter a valid round ID');
+      toast.error("Please enter a valid round ID");
       return;
     }
     getRound(roundIdTemp);
@@ -288,10 +306,17 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
     <div className="space-y-4 px-4 sm:px-6 lg:px-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold jackpot-glow">Admin Panel</h2>
-          <p className="text-sm sm:text-base text-muted-foreground">Manage lottery system settings</p>
+          <h2 className="text-xl sm:text-2xl font-bold jackpot-glow">
+            Admin Panel
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Manage lottery system settings
+          </p>
         </div>
-        <Badge variant="outline" className="border-lottery-win text-lottery-win self-start sm:self-auto">
+        <Badge
+          variant="outline"
+          className="border-lottery-win text-lottery-win self-start sm:self-auto"
+        >
           <Shield className="w-3 h-3 mr-1" />
           Administrator
         </Badge>
@@ -299,27 +324,42 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
 
       <Tabs defaultValue="core" className="w-full">
         <TabsList className="grid w-full grid-cols-4 h-auto">
-          <TabsTrigger value="core" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
+          <TabsTrigger
+            value="core"
+            className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5"
+          >
             <Settings className="w-4 h-4" />
             <span className="text-xs sm:text-sm">Core System</span>
           </TabsTrigger>
-          <TabsTrigger value="gifts" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
+          <TabsTrigger
+            value="gifts"
+            className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5"
+          >
             <Gift className="w-4 h-4" />
             <span className="text-xs sm:text-sm">Gift System</span>
           </TabsTrigger>
-          <TabsTrigger value="token" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
+          <TabsTrigger
+            value="token"
+            className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5"
+          >
             <DollarSign className="w-4 h-4" />
             <span className="text-xs sm:text-sm">Token Settings</span>
           </TabsTrigger>
 
-          <TabsTrigger value="history" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5">
+          <TabsTrigger
+            value="history"
+            className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5"
+          >
             <History className="w-4 h-4" />
             <span className="text-xs sm:text-sm">History</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Core System Management */}
-        <TabsContent value="core" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+        <TabsContent
+          value="core"
+          className="space-y-4 sm:space-y-6 mt-4 sm:mt-6"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Max Payout Management */}
             <Card className="lottery-card">
@@ -329,12 +369,15 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   Max Payout Per Round
                 </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
-                  Schedule and execute max payout changes (24h timelock required)
+                  Schedule and execute max payout changes (24h timelock
+                  required)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="maxPayout" className="text-sm">New Max Payout (PTK)</Label>
+                  <Label htmlFor="maxPayout" className="text-sm">
+                    New Max Payout (PTK)
+                  </Label>
                   <Input
                     id="maxPayout"
                     type="number"
@@ -401,7 +444,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                     {isUnpausing ? "Unpausing..." : "Unpause System"}
                   </Button>
                 </div>
-                
+
                 <Alert className="border-destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription className="text-xs sm:text-sm">
@@ -419,13 +462,18 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   Emergency Withdrawal
                 </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
-                  Withdraw funds from the lottery contract in emergency situations
+                  Withdraw funds from the lottery contract in emergency
+                  situations
                 </CardDescription>
-                <p>Lottery Contract Token Balance: {coreContractTokenBalance} PTK</p>
+                <p>
+                  Lottery Contract Token Balance: {coreContractTokenBalance} PTK
+                </p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="max-w-sm">
-                  <Label htmlFor="emergencyAmount" className="text-sm">Amount (PTK)</Label>
+                  <Label htmlFor="emergencyAmount" className="text-sm">
+                    Amount (PTK)
+                  </Label>
                   <Input
                     id="emergencyAmount"
                     type="number"
@@ -443,7 +491,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   className="text-sm"
                 >
                   <AlertTriangle className="w-4 h-4 mr-2" />
-                  {isEmergencyWithdraw ? "Withdrawing..." : "Emergency Withdraw"}
+                  {isEmergencyWithdraw
+                    ? "Withdrawing..."
+                    : "Emergency Withdraw"}
                 </Button>
               </CardContent>
             </Card>
@@ -476,7 +526,10 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
         </TabsContent>
 
         {/* Gift System Management */}
-        <TabsContent value="gifts" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+        <TabsContent
+          value="gifts"
+          className="space-y-4 sm:space-y-6 mt-4 sm:mt-6"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Gift Settings */}
             <Card className="lottery-card">
@@ -491,7 +544,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="recipientsCount" className="text-sm">Recipients Count</Label>
+                  <Label htmlFor="recipientsCount" className="text-sm">
+                    Recipients Count
+                  </Label>
                   <Input
                     id="recipientsCount"
                     type="number"
@@ -502,7 +557,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="creatorAmount" className="text-sm">Creator Gift Amount (PTK)</Label>
+                  <Label htmlFor="creatorAmount" className="text-sm">
+                    Creator Gift Amount (PTK)
+                  </Label>
                   <Input
                     id="creatorAmount"
                     type="number"
@@ -513,7 +570,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="userAmount" className="text-sm">User Gift Amount (PTK)</Label>
+                  <Label htmlFor="userAmount" className="text-sm">
+                    User Gift Amount (PTK)
+                  </Label>
                   <Input
                     id="userAmount"
                     type="number"
@@ -553,7 +612,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="reserveFund" className="text-sm">Fund Amount (PTK)</Label>
+                  <Label htmlFor="reserveFund" className="text-sm">
+                    Fund Amount (PTK)
+                  </Label>
                   <Input
                     id="reserveFund"
                     type="number"
@@ -571,7 +632,7 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                 >
                   {isFundingReserve ? "Funding..." : "Fund Reserve"}
                 </Button>
-                
+
                 <div className="text-xs sm:text-sm text-muted-foreground space-y-1 pt-2 border-t">
                   <p>Current Reserve: {giftReserveStatus?.reserve} PTK</p>
                   <p>Cost Per Round: {giftReserveStatus?.costPerRound} PTK</p>
@@ -584,7 +645,10 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
         </TabsContent>
 
         {/* Token Management */}
-        <TabsContent value="token" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+        <TabsContent
+          value="token"
+          className="space-y-4 sm:space-y-6 mt-4 sm:mt-6"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Authorized Burners */}
             <Card className="lottery-card">
@@ -599,7 +663,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="burnerAddress" className="text-sm">Burner Address</Label>
+                  <Label htmlFor="burnerAddress" className="text-sm">
+                    Burner Address
+                  </Label>
                   <Input
                     id="burnerAddress"
                     placeholder="0x..."
@@ -643,7 +709,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="transferorAddress" className="text-sm">Transferor Address</Label>
+                  <Label htmlFor="transferorAddress" className="text-sm">
+                    Transferor Address
+                  </Label>
                   <Input
                     id="transferorAddress"
                     placeholder="0x..."
@@ -682,7 +750,8 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   Emergency Withdrawal Mode
                 </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
-                  Allow users to unstake tokens immediately without waiting period
+                  Allow users to unstake tokens immediately without waiting
+                  period
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -694,14 +763,19 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   className="text-sm"
                 >
                   <AlertTriangle className="w-4 h-4 mr-2" />
-                  {isTogglingEmergencyWithdrawal ? "Toggling..." : "Toggle Emergency Mode"}
+                  {isTogglingEmergencyWithdrawal
+                    ? "Toggling..."
+                    : "Toggle Emergency Mode"}
                 </Button>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        <TabsContent value="history" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+        <TabsContent
+          value="history"
+          className="space-y-4 sm:space-y-6 mt-4 sm:mt-6"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Max Payout Management */}
             <Card className="lottery-card">
@@ -713,7 +787,9 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="roundId" className="text-sm">Round Number</Label>
+                  <Label htmlFor="roundId" className="text-sm">
+                    Round Number
+                  </Label>
                   <Input
                     id="roundId"
                     type="number"
@@ -731,14 +807,15 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                     size="sm"
                   >
                     <Clock className="w-4 h-4 mr-2" />
-                    {isLoadingRound ? "Fetching Round Data..." : "Fetch Round Data"}
+                    {isLoadingRound
+                      ? "Fetching Round Data..."
+                      : "Fetch Round Data"}
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            {
-              isLoadingRound ?
+            {isLoadingRound ? (
               <Card className="lottery-card">
                 <CardHeader>
                   <div className="animate-pulse space-y-2">
@@ -746,12 +823,16 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                     <div className="h-4 bg-muted rounded w-1/2"></div>
                   </div>
                 </CardHeader>
-              </Card> : roundError || !roundData ? 
+              </Card>
+            ) : roundError || !roundData ? (
               <Card className="lottery-card">
                 <CardContent className="space-y-4 flex h-[100%] justify-center items-center">
-                  <div className="font-semibold text-red-500">Error Loading Data</div>
+                  <div className="font-semibold text-red-500">
+                    Error Loading Data
+                  </div>
                 </CardContent>
-              </Card> :
+              </Card>
+            ) : (
               <Card className="lottery-card">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -768,31 +849,37 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                       <strong>Round ID:</strong> {roundData.roundId.toString()}
                     </div>
                     <div>
-                      <strong>Start Time:</strong> {formatTimestamp(roundData.startTime)}
+                      <strong>Start Time:</strong>{" "}
+                      {formatTimestamp(roundData.startTime)}
                     </div>
                     <div>
-                      <strong>End Time:</strong> {formatTimestamp(roundData.endTime)}
+                      <strong>End Time:</strong>{" "}
+                      {formatTimestamp(roundData.endTime)}
                     </div>
                     <div>
-                      <strong>Numbers Drawn:</strong> {roundData.numbersDrawn ? 'Yes' : 'No'}
+                      <strong>Numbers Drawn:</strong>{" "}
+                      {roundData.numbersDrawn ? "Yes" : "No"}
                     </div>
                     <div>
-                      <strong>Total Bets:</strong> {roundData.totalBets.toString()} PTK
+                      <strong>Total Bets:</strong>{" "}
+                      {roundData.totalBets.toString()} PTK
                     </div>
                     <div>
-                      <strong>Total Prize Pool:</strong> {roundData.totalPrizePool.toString()} PTK
+                      <strong>Total Prize Pool:</strong>{" "}
+                      {roundData.totalPrizePool.toString()} PTK
                     </div>
                     <div>
-                      <strong>Gifts Distributed:</strong> {roundData.giftsDistributed ? 'Yes' : 'No'}
+                      <strong>Gifts Distributed:</strong>{" "}
+                      {roundData.giftsDistributed ? "Yes" : "No"}
                     </div>
                   </div>
 
-                {/* Winning Numbers */}
+                  {/* Winning Numbers */}
                   <div className="mt-4">
                     <strong>Winning Numbers:</strong>
                     <div className="flex gap-2 mt-2">
                       {roundData?.winningNumbers.map((num, index) => (
-                        <span 
+                        <span
                           key={index}
                           className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
                         >
@@ -803,11 +890,10 @@ export const AdminPanel = ({ isAdmin, loading }: AdminPanelProps) => {
                   </div>
                 </CardContent>
               </Card>
-            }
-
+            )}
           </div>
         </TabsContent>
       </Tabs>
     </div>
-  )
-}
+  );
+};

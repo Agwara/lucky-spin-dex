@@ -7,10 +7,10 @@ import {
 
 // Contract addresses - Replace with your deployed addresses
 export const CONTRACT_ADDRESSES = {
-  PLATFORM_TOKEN: "0xeceff35fe011694dfcea93e97bba60d2feec2253" as const, // Replace with your PLATFORM_TOKEN_ADDRESS
-  CORE_CONTRACT: "0xB00e9C805E09B4BC5203Cc18e3f45a7e39797F2b" as const, // Replace with your CORE_CONTRACT_ADDRESS
-  GIFT_CONTRACT: "0x4A4E08CeB3C062B8849C248869c47f8021531E7d" as const, // Replace with your GIFT_CONTRACT_ADDRESS
-  ADMIN_CONTRACT: "0x8A8043B1A3E34E273E7a5A9aD18A70BBeDc2654D" as const, // Replace with your ADMIN_CONTRACT_ADDRESS
+  PLATFORM_TOKEN: "0x82AD07Fd87E2Ac6e09527De19EE7dcf0Add119CD" as const, // Replace with your PLATFORM_TOKEN_ADDRESS
+  CORE_CONTRACT: "0xCcEC0cA14CDa3e9c28625ec087Cfd16344391AE8" as const, // Replace with your CORE_CONTRACT_ADDRESS
+  GIFT_CONTRACT: "0x2e1Bbc1a858210E457b24cD09D060a9e7c8B2D4f" as const, // Replace with your GIFT_CONTRACT_ADDRESS
+  ADMIN_CONTRACT: "0x9EFB45636C38b3F5876C589A5a040f1BfD8eeAA5" as const, // Replace with your ADMIN_CONTRACT_ADDRESS
 };
 
 // Lottery Game Core ABI (essential functions)

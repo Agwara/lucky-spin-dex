@@ -1,71 +1,198 @@
 export const FULL_PLATFORM_TOKEN_ABI = [
   {
     inputs: [
-      { internalType: "uint256", name: "initialSupply", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "initialSupply",
+        type: "uint256",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
   },
-  { inputs: [], name: "BelowMinimumStakeAmount", type: "error" },
+  {
+    inputs: [],
+    name: "BelowMinimumStakeAmount",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BonusAlreadyClaimed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BonusSystemInactive",
+    type: "error",
+  },
   {
     inputs: [
-      { internalType: "address", name: "spender", type: "address" },
-      { internalType: "uint256", name: "allowance", type: "uint256" },
-      { internalType: "uint256", name: "needed", type: "uint256" },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "allowance",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "needed",
+        type: "uint256",
+      },
     ],
     name: "ERC20InsufficientAllowance",
     type: "error",
   },
   {
     inputs: [
-      { internalType: "address", name: "sender", type: "address" },
-      { internalType: "uint256", name: "balance", type: "uint256" },
-      { internalType: "uint256", name: "needed", type: "uint256" },
+      {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "balance",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "needed",
+        type: "uint256",
+      },
     ],
     name: "ERC20InsufficientBalance",
     type: "error",
   },
   {
-    inputs: [{ internalType: "address", name: "approver", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "approver",
+        type: "address",
+      },
+    ],
     name: "ERC20InvalidApprover",
     type: "error",
   },
   {
-    inputs: [{ internalType: "address", name: "receiver", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "receiver",
+        type: "address",
+      },
+    ],
     name: "ERC20InvalidReceiver",
     type: "error",
   },
   {
-    inputs: [{ internalType: "address", name: "sender", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
     name: "ERC20InvalidSender",
     type: "error",
   },
   {
-    inputs: [{ internalType: "address", name: "spender", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+    ],
     name: "ERC20InvalidSpender",
     type: "error",
   },
-  { inputs: [], name: "EmergencyWithdrawalDisabled", type: "error" },
-  { inputs: [], name: "EnforcedPause", type: "error" },
-  { inputs: [], name: "ExceedsMaximumStakeAmount", type: "error" },
-  { inputs: [], name: "ExpectedPause", type: "error" },
-  { inputs: [], name: "InsufficientBalance", type: "error" },
-  { inputs: [], name: "InsufficientStakedBalance", type: "error" },
   {
-    inputs: [{ internalType: "address", name: "owner", type: "address" }],
+    inputs: [],
+    name: "EmergencyWithdrawalDisabled",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "EnforcedPause",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ExceedsMaximumStakeAmount",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ExpectedPause",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InsufficientBalance",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InsufficientContractBalance",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InsufficientStakedBalance",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
     name: "OwnableInvalidOwner",
     type: "error",
   },
   {
-    inputs: [{ internalType: "address", name: "account", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
     name: "OwnableUnauthorizedAccount",
     type: "error",
   },
-  { inputs: [], name: "ReentrancyGuardReentrantCall", type: "error" },
-  { inputs: [], name: "StakingDurationNotMet", type: "error" },
-  { inputs: [], name: "UnauthorizedBurner", type: "error" },
-  { inputs: [], name: "UnauthorizedTransferor", type: "error" },
-  { inputs: [], name: "ZeroAmount", type: "error" },
+  {
+    inputs: [],
+    name: "ReentrancyGuardReentrantCall",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "StakingDurationNotMet",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UnauthorizedBurner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UnauthorizedTransferor",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ZeroAmount",
+    type: "error",
+  },
   {
     anonymous: false,
     inputs: [
@@ -132,7 +259,69 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: "bool", name: "enabled", type: "bool" },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newGiftAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newStakeAmount",
+        type: "uint256",
+      },
+    ],
+    name: "BonusAmountsUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "giftAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "stakeAmount",
+        type: "uint256",
+      },
+    ],
+    name: "BonusClaimed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "active",
+        type: "bool",
+      },
+    ],
+    name: "BonusSystemToggled",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "enabled",
+        type: "bool",
+      },
     ],
     name: "EmergencyWithdrawalToggled",
     type: "event",
@@ -197,7 +386,12 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: "address", name: "user", type: "address" },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
       {
         indexed: false,
         internalType: "uint256",
@@ -217,7 +411,12 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: "address", name: "user", type: "address" },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
       {
         indexed: false,
         internalType: "uint256",
@@ -237,8 +436,18 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: "address", name: "from", type: "address" },
-      { indexed: true, internalType: "address", name: "to", type: "address" },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
       {
         indexed: false,
         internalType: "uint256",
@@ -265,74 +474,207 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   {
     inputs: [],
     name: "BURN_RATE",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "DEFAULT_GIFT_AMOUNT",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "DEFAULT_STAKE_AMOUNT",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "MAX_STAKE_PER_USER",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "MIN_STAKE_AMOUNT",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "MIN_STAKE_DURATION",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
-      { internalType: "address", name: "owner", type: "address" },
-      { internalType: "address", name: "spender", type: "address" },
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
     ],
     name: "allowance",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
-      { internalType: "address", name: "spender", type: "address" },
-      { internalType: "uint256", name: "value", type: "uint256" },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
     ],
     name: "approve",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     name: "authorizedBurners",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     name: "authorizedTransferors",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "account", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
     name: "balanceOf",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
+    inputs: [],
+    name: "bonusSystemActive",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
     name: "burn",
     outputs: [],
     stateMutability: "nonpayable",
@@ -340,9 +682,21 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "burnAmount", type: "uint256" },
-      { internalType: "address", name: "mintTo", type: "address" },
-      { internalType: "uint256", name: "mintAmount", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "burnAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "mintTo",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "mintAmount",
+        type: "uint256",
+      },
     ],
     name: "burnAndMint",
     outputs: [],
@@ -351,8 +705,16 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   },
   {
     inputs: [
-      { internalType: "address", name: "from", type: "address" },
-      { internalType: "uint256", name: "amount", type: "uint256" },
+      {
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
     ],
     name: "burnFrom",
     outputs: [],
@@ -361,9 +723,61 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   },
   {
     inputs: [],
-    name: "decimals",
-    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+    name: "claimBonusAndStake",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "currentGiftAmount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "currentStakeAmount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "decimals",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "depositForBonuses",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -376,25 +790,99 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   {
     inputs: [],
     name: "emergencyWithdrawalEnabled",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "user", type: "address" }],
-    name: "getStakingInfo",
     outputs: [
-      { internalType: "uint256", name: "staked", type: "uint256" },
-      { internalType: "uint256", name: "timestamp", type: "uint256" },
-      { internalType: "bool", name: "canUnstake", type: "bool" },
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    inputs: [],
+    name: "getBonusStats",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "active",
+        type: "bool",
+      },
+      {
+        internalType: "uint256",
+        name: "currentGift",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "currentStake",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "totalClaimed",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "totalDistributed",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "contractBalance",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getStakingInfo",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "staked",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "canUnstake",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
     name: "getStakingWeight",
-    outputs: [{ internalType: "uint256", name: "weight", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "weight",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
@@ -402,31 +890,105 @@ export const FULL_PLATFORM_TOKEN_ABI = [
     inputs: [],
     name: "getSupplyStats",
     outputs: [
-      { internalType: "uint256", name: "circulating", type: "uint256" },
-      { internalType: "uint256", name: "staked", type: "uint256" },
-      { internalType: "uint256", name: "burned", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "circulating",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "staked",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "burned",
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "hasBonusClaimed",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
     name: "isEligibleForBenefits",
-    outputs: [{ internalType: "bool", name: "eligible", type: "bool" }],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "eligible",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "isEligibleForBonus",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "eligible",
+        type: "bool",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "name",
-    outputs: [{ internalType: "string", name: "", type: "string" }],
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "owner",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
@@ -440,15 +1002,33 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   {
     inputs: [],
     name: "paused",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
-      { internalType: "address", name: "tokenAddress", type: "address" },
-      { internalType: "address", name: "to", type: "address" },
-      { internalType: "uint256", name: "amount", type: "uint256" },
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
     ],
     name: "recoverToken",
     outputs: [],
@@ -464,8 +1044,16 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   },
   {
     inputs: [
-      { internalType: "address", name: "burner", type: "address" },
-      { internalType: "bool", name: "authorized", type: "bool" },
+      {
+        internalType: "address",
+        name: "burner",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "authorized",
+        type: "bool",
+      },
     ],
     name: "setAuthorizedBurner",
     outputs: [],
@@ -474,8 +1062,16 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   },
   {
     inputs: [
-      { internalType: "address", name: "transferor", type: "address" },
-      { internalType: "bool", name: "authorized", type: "bool" },
+      {
+        internalType: "address",
+        name: "transferor",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "authorized",
+        type: "bool",
+      },
     ],
     name: "setAuthorizedTransferor",
     outputs: [],
@@ -483,35 +1079,90 @@ export const FULL_PLATFORM_TOKEN_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
     name: "stake",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     name: "stakedBalance",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     name: "stakingTimestamp",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "symbol",
-    outputs: [{ internalType: "string", name: "", type: "string" }],
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "bool", name: "enabled", type: "bool" }],
+    inputs: [
+      {
+        internalType: "bool",
+        name: "active",
+        type: "bool",
+      },
+    ],
+    name: "toggleBonusSystem",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "enabled",
+        type: "bool",
+      },
+    ],
     name: "toggleEmergencyWithdrawal",
     outputs: [],
     stateMutability: "nonpayable",
@@ -519,48 +1170,130 @@ export const FULL_PLATFORM_TOKEN_ABI = [
   },
   {
     inputs: [],
+    name: "totalBonusDistributed",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalBonusesClaimed",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "totalBurned",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "totalStaked",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "totalSupply",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
-      { internalType: "address", name: "to", type: "address" },
-      { internalType: "uint256", name: "value", type: "uint256" },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
     ],
     name: "transfer",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [
-      { internalType: "address", name: "from", type: "address" },
-      { internalType: "address", name: "to", type: "address" },
-      { internalType: "uint256", name: "value", type: "uint256" },
+      {
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
     ],
     name: "transferFrom",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "newOwner", type: "address" }],
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
     name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
@@ -574,8 +1307,32 @@ export const FULL_PLATFORM_TOKEN_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
     name: "unstake",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "newGiftAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "newStakeAmount",
+        type: "uint256",
+      },
+    ],
+    name: "updateBonusAmounts",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

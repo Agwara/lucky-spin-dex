@@ -1,23 +1,30 @@
-import { useState } from "react"
-import { useAccount } from 'wagmi'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Sparkles, Trophy, Gift, Settings, RefreshCw, Shield } from "lucide-react"
-import { WalletConnect } from "@/components/wallet/WalletConnect"
-import { CurrentRound } from "@/components/lottery/CurrentRound"
-import { ClaimWinnings } from "@/components/lottery/ClaimWinnings"
-import { NumberSelector } from "@/components/lottery/NumberSelector"
-import { StakingPanel } from "@/components/lottery/StakingPanel"
-import { UserStats } from "@/components/lottery/UserStats"
-import { AdminPanel } from "@/components/admin/AdminPanel"
-import { useLottery } from "@/hooks/useLottery"
-import { toast } from "sonner"
-import { useLotteryEvents } from "@/hooks/useLotteryEvent"
+import { useAccount } from "wagmi";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Sparkles,
+  Trophy,
+  Gift,
+  Settings,
+  RefreshCw,
+  Shield,
+} from "lucide-react";
+import { WalletConnect } from "@/components/wallet/WalletConnect";
+import { CurrentRound } from "@/components/lottery/CurrentRound";
+import { ClaimWinnings } from "@/components/lottery/ClaimWinnings";
+import { NumberSelector } from "@/components/lottery/NumberSelector";
+import { StakingPanel } from "@/components/lottery/StakingPanel";
+import { UserStats } from "@/components/lottery/UserStats";
+import { AdminPanel } from "@/components/admin/AdminPanel";
+import { useLottery } from "@/hooks/useLottery";
+import { toast } from "sonner";
+import { useLotteryEvents } from "@/hooks/useLotteryEvent";
+import WelcomeModal from "@/components/lottery/WelcomeModal";
 
 const Index = () => {
-  const { isConnected, address } = useAccount()
+  const { isConnected, address } = useAccount();
   const {
     currentRound,
     userStats,
@@ -33,44 +40,43 @@ const Index = () => {
     placeBet,
     stakeTokens,
     unstakeTokens,
-    refetch
-  } = useLottery()
+    refetch,
+  } = useLottery();
 
   // Automatically set up in your main component
-  useLotteryEvents(address, refetch)
+  useLotteryEvents(address, refetch);
 
   // Mock admin check - replace with actual admin check from your contract
-  const isAdmin = address?.toLowerCase() === "0x6cC2753524B3D63203f001Ab1cF19f2b525E76b7".toLowerCase();
+  const isAdmin =
+    address?.toLowerCase() ===
+    "0x6cC2753524B3D63203f001Ab1cF19f2b525E76b7".toLowerCase();
 
   const handleRefresh = async () => {
     await refetch();
-  }
-
-  console.log("allowance: ", allowance)
+  };
 
   const handlePlaceBet = async (numbers: number[], amount: string) => {
-    if (!isEligible) {
-      toast.error("You need to stake tokens first to participate!")
-      return
-    }
+    // if (!isEligible) {
+    //   toast.error("You need to stake tokens first to participate!");
+    //   return;
+    // }
 
     try {
-      const betAmount = parseFloat(amount)
-      const userAllowance = parseFloat(allowance)
+      const betAmount = parseFloat(amount);
+      const userAllowance = parseFloat(allowance);
 
       if (userAllowance < betAmount) {
-        toast.info("Approving tokens for betting...")
-        await approveBetting((betAmount * 2).toString()) // Approve 2x for future bets
+        toast.info("Approving tokens for betting...");
+        await approveBetting((betAmount * 2).toString()); // Approve 2x for future bets
         // After approval, the user needs to place the bet again
-        toast.info("Approval complete! Placing bet...")
+        toast.info("Approval complete! Placing bet...");
       }
 
-      await placeBet(numbers, amount)
+      await placeBet(numbers, amount);
     } catch (error) {
-      console.error('Bet placement failed:', error)
+      console.error("Bet placement failed:", error);
     }
-  }
-
+  };
 
   return (
     <div className="min-h-screen bg-gradient-background">
@@ -83,25 +89,32 @@ const Index = () => {
                 <Sparkles className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold jackpot-glow">Crystal Chain</h1>
-                <p className="text-muted-foreground">Decentralized Lottery Platform</p>
+                <h1 className="text-3xl font-bold jackpot-glow">
+                  Crystal Chain
+                </h1>
+                <p className="text-muted-foreground">
+                  Decentralized Lottery Platform
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4 justify-between">
-              {
-                isConnected &&
+              {isConnected && (
                 <Button
                   onClick={handleRefresh}
                   disabled={isLoading}
                   variant="outline"
                   size="sm"
                 >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                  <RefreshCw
+                    className={`w-4 h-4 mr-2 ${
+                      isLoading ? "animate-spin" : ""
+                    }`}
+                  />
                   Refresh
                 </Button>
-              }
-              
+              )}
+
               {isConnected && (
                 <Badge className="bg-lottery-win text-white">
                   {isEligible ? "Eligible" : "Stake to Play"}
@@ -121,7 +134,8 @@ const Index = () => {
                 🎰 Welcome to Crystal Chain! 🎰
               </h2>
               <p className="text-xl text-muted-foreground">
-                The ultimate decentralized lottery experience. Pick your numbers, place your bets, and win big!
+                The ultimate decentralized lottery experience. Pick your
+                numbers, place your bets, and win big!
               </p>
             </div>
 
@@ -136,7 +150,8 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Win up to 800x your bet with our progressive prize structure!
+                    Win up to 800x your bet with our progressive prize
+                    structure!
                   </p>
                 </CardContent>
               </Card>
@@ -148,7 +163,8 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Play consecutive rounds to unlock gift distributions and bonuses!
+                    Play consecutive rounds to unlock gift distributions and
+                    bonuses!
                   </p>
                 </CardContent>
               </Card>
@@ -160,7 +176,8 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Powered by Chainlink VRF for truly random and verifiable results!
+                    Powered by Chainlink VRF for truly random and verifiable
+                    results!
                   </p>
                 </CardContent>
               </Card>
@@ -170,15 +187,26 @@ const Index = () => {
           /* Connected State - Main App */
           <div className="space-y-8 w-99%">
             {/* Current Round - Always visible */}
-            <CurrentRound giftReserveStatus={giftReserveStatus?.reserve} round={currentRound} loading={isLoading} />
+            <CurrentRound
+              giftReserveStatus={giftReserveStatus?.reserve}
+              round={currentRound}
+              loading={isLoading}
+            />
 
             <Tabs defaultValue="play" className="w-full">
-              <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
+              <TabsList
+                className={`grid w-full ${
+                  isAdmin ? "grid-cols-4" : "grid-cols-3"
+                }`}
+              >
                 <TabsTrigger value="play" className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   Play Lottery
                 </TabsTrigger>
-                <TabsTrigger value="staking" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="staking"
+                  className="flex items-center gap-2"
+                >
                   <Trophy className="w-4 h-4" />
                   Staking
                 </TabsTrigger>
@@ -187,7 +215,10 @@ const Index = () => {
                   My Stats
                 </TabsTrigger>
                 {isAdmin && (
-                  <TabsTrigger value="admin" className="flex items-center gap-2">
+                  <TabsTrigger
+                    value="admin"
+                    className="flex items-center gap-2"
+                  >
                     <Shield className="w-4 h-4" />
                     Admin
                   </TabsTrigger>
@@ -255,11 +286,14 @@ const Index = () => {
               <span className="text-xl font-bold">Crystal Chain</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Powered by Ethereum • Chainlink VRF • Built with ❤️ for the community
+              Powered by Ethereum • Chainlink VRF • Built with ❤️ for the
+              community
             </p>
           </div>
         </div>
       </footer>
+
+      {isConnected && <WelcomeModal />}
     </div>
   );
 };

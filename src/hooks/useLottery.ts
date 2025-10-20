@@ -136,6 +136,15 @@ export const useLottery = () => {
     query: { enabled: isConnected && !!address },
   });
 
+  const isEligibleForBonusQuery = useReadContract({
+    address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+    abi: PLATFORM_TOKEN_ABI,
+    functionName: "isEligibleForBonus",
+    args: address ? [address] : undefined,
+    account: address,
+    query: { enabled: isConnected && !!address },
+  });
+
   const giftReserveStatusQuery = useReadContract({
     address: CONTRACT_ADDRESSES.GIFT_CONTRACT,
     abi: GIFT_CONTRACT_ABI,
@@ -247,7 +256,8 @@ export const useLottery = () => {
     giftRecipientsCountQuery.error ||
     creatorGiftAmountQuery.error ||
     userGiftAmountQuery.error ||
-    emergencyWithdrawalEnabledQuery.error;
+    emergencyWithdrawalEnabledQuery.error ||
+    isEligibleForBonusQuery.error;
 
   useEffect(() => {
     if (readError) toast.error(`Failed to fetch data: ${readError.message}`);
@@ -480,6 +490,55 @@ export const useLottery = () => {
     }
   };
 
+  // const claimBonusAndStake = async () => {
+  //   if (!address) {
+  //     toast.error("Please connect your wallet");
+  //     return;
+  //   }
+
+  //   try {
+  //     const hash = await writeContractAsync({
+  //       address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+  //       abi: PLATFORM_TOKEN_ABI,
+  //       functionName: "claimBonusAndStake",
+  //       account: address,
+  //       chain,
+  //     });
+
+  //     await waitForTransactionReceipt(config, { hash });
+  //     toast.success("Bonus Received!");
+  //   } catch (error: any) {
+  //     toast.error(`Action failed: ${error.shortMessage || error.message}`);
+  //     throw error;
+  //   }
+  // };
+
+  const claimBonusAndStake = async () => {
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
+    try {
+      // First, simulate
+      const { request } = await simulateContract(config, {
+        address: CONTRACT_ADDRESSES.PLATFORM_TOKEN,
+        abi: PLATFORM_TOKEN_ABI,
+        functionName: "claimBonusAndStake",
+        account: address,
+        chain,
+      });
+
+      // Then send the transaction using the simulation request
+      const hash = await writeContractAsync(request);
+
+      await waitForTransactionReceipt(config, { hash });
+      toast.success("Bonus Received!");
+    } catch (error: any) {
+      console.error("claimBonusAndStake error:", error);
+      toast.error(`Action failed: ${error.shortMessage || error.message}`);
+    }
+  };
   const refetch = async () => {
     setIsRefetching(true);
     try {
@@ -499,6 +558,7 @@ export const useLottery = () => {
         creatorGiftAmountQuery.refetch(),
         userGiftAmountQuery.refetch(),
         emergencyWithdrawalEnabledQuery.refetch(),
+        isEligibleForBonusQuery.refetch(),
       ]);
       toast.success("Data refreshed!");
     } catch {
@@ -528,6 +588,8 @@ export const useLottery = () => {
   const userGiftAmount: any = userGiftAmountQuery.data ?? 0n;
   const emergencyWithdrawalEnabled: any =
     emergencyWithdrawalEnabledQuery.data ?? false;
+
+  const isEligibleForBonus: any = isEligibleForBonusQuery.data ?? false;
 
   const formattedCurrentRound = currentRound
     ? {
@@ -597,6 +659,7 @@ export const useLottery = () => {
     rawBetData: formatrawBetData,
     rawClaimableData: formatrawClaimableData,
     fetchingClaimable,
+    isEligibleForBonus,
 
     isLoading:
       currentRoundQuery.isLoading ||
@@ -614,7 +677,8 @@ export const useLottery = () => {
       giftRecipientsCountQuery.isLoading ||
       creatorGiftAmountQuery.isLoading ||
       userGiftAmountQuery.isLoading ||
-      emergencyWithdrawalEnabledQuery.isLoading,
+      emergencyWithdrawalEnabledQuery.isLoading ||
+      isEligibleForBonusQuery.isLoading,
 
     isWritePending: isWritePending || isConfirming,
     isLoadingBet: isLoadingBet,
@@ -633,6 +697,7 @@ export const useLottery = () => {
     refetch,
     getBetDetails,
     setCurrentBetId,
+    claimBonusAndStake,
 
     readError,
     writeError,
