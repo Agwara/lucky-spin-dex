@@ -89,9 +89,7 @@ const Index = () => {
                 <Sparkles className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold jackpot-glow">
-                  Crystal Chain
-                </h1>
+                <h1 className="text-3xl font-bold">Crystal Chain</h1>
                 <p className="text-muted-foreground">
                   Decentralized Lottery Platform
                 </p>
@@ -130,7 +128,7 @@ const Index = () => {
           /* Not Connected State */
           <div className="max-w-2xl mx-auto space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-4xl font-bold jackpot-glow">
+              <h2 className="text-4xl font-bold">
                 🎰 Welcome to Crystal Chain! 🎰
               </h2>
               <p className="text-xl text-muted-foreground">
@@ -278,7 +276,7 @@ const Index = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 mt-16">
+      <footer className="border-t border-border/50 mt-5 md:mt-12">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-2">
