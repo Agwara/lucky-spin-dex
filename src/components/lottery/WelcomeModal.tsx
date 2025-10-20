@@ -131,7 +131,7 @@ export default function WelcomeModal() {
               hover:scale-105 text-sm sm:text-base
             "
           >
-            Get Bonus
+            Get Free Tokens
           </Button>
         </div>
       </DialogContent>
