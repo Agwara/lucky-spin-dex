@@ -1,27 +1,37 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Clock, Users, DollarSign, Trophy, GiftIcon } from "lucide-react"
-import { LotteryBall } from "./LotteryBall"
-import { useState, useRef, useEffect } from "react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Clock, Users, Trophy, GiftIcon } from "lucide-react";
+import { LotteryBall } from "./LotteryBall";
+import { useState, useRef, useEffect } from "react";
 
 interface Round {
-  roundId: number
-  startTime: number
-  endTime: number
-  winningNumbers: number[]
-  numbersDrawn: boolean
-  totalBets: string
-  totalPrizePool: string
-  participants: string[]
+  roundId: number;
+  startTime: number;
+  endTime: number;
+  winningNumbers: number[];
+  numbersDrawn: boolean;
+  totalBets: string;
+  totalPrizePool: string;
+  participants: string[];
 }
 
 interface CurrentRoundProps {
-  round: Round | null
-  loading?: boolean
-  giftReserveStatus: string
+  round: Round | null;
+  loading?: boolean;
+  giftReserveStatus: string;
 }
 
-export const CurrentRound = ({ round, loading = false, giftReserveStatus }: CurrentRoundProps) => {
+export const CurrentRound = ({
+  round,
+  loading = false,
+  giftReserveStatus,
+}: CurrentRoundProps) => {
   if (loading) {
     return (
       <Card className="lottery-card">
@@ -32,7 +42,7 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
           </div>
         </CardHeader>
       </Card>
-    )
+    );
   }
 
   if (!round) {
@@ -40,43 +50,44 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
       <Card className="lottery-card">
         <CardHeader>
           <CardTitle className="text-destructive">No Active Round</CardTitle>
-          <CardDescription>Waiting for the next lottery round to begin...</CardDescription>
+          <CardDescription>
+            Waiting for the next lottery round to begin...
+          </CardDescription>
         </CardHeader>
       </Card>
-    )
+    );
   }
 
-  const [remaining, setRemaining] = useState(0)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const [remaining, setRemaining] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const isActive = remaining > 0 && !round.numbersDrawn
+  const isActive = remaining > 0 && !round.numbersDrawn;
 
   useEffect(() => {
-    if (!round) return
+    if (!round) return;
 
     const updateTime = () => {
-      const now = Date.now()
-      const msLeft = round.endTime * 1000 - now
-      setRemaining(Math.max(0, msLeft))
-    }
+      const now = Date.now();
+      const msLeft = round.endTime * 1000 - now;
+      setRemaining(Math.max(0, msLeft));
+    };
 
-    updateTime() // initial run
+    updateTime(); // initial run
 
     // only update once per second
-    timerRef.current = setInterval(updateTime, 1000)
+    timerRef.current = setInterval(updateTime, 1000);
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [round?.endTime])
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [round?.endTime]);
 
-  
   // Format time remaining
   const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000)
-    const seconds = Math.floor((ms % 60000) / 1000)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
-  }
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -100,19 +111,20 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
                 )}
               </CardTitle>
               <CardDescription className="text-lg mt-2">
-                {isActive 
+                {isActive
                   ? "Place your bets now - time is running out!"
-                  : round.numbersDrawn 
-                    ? "Winning numbers have been drawn!"
-                    : "Waiting for results..."
-                }
+                  : round.numbersDrawn
+                  ? "Winning numbers have been drawn!"
+                  : "Waiting for results..."}
               </CardDescription>
             </div>
 
-            <div className="hidden md:flex items-center gap-3 p-4 bg-muted/20 rounded-lg col-span-2 md:col-span-3">
+            <div className="hidden md:flex items-center gap-3 bg-muted/20 rounded-lg col-span-2 md:col-span-3">
               <GiftIcon className="w-8 h-8 text-lottery-jackpot" />
               <div>
-                <div className="text-sm text-muted-foreground">Gift Reserve</div>
+                <div className="text-sm text-muted-foreground">
+                  Gift Reserve
+                </div>
                 <div className="font-semibold text-2xl text-lottery-jackpot">
                   {parseFloat(giftReserveStatus)} PTK
                 </div>
@@ -125,17 +137,16 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
               </div>
               <div className="text-sm text-muted-foreground">Time left</div>
             </div>
-            
           </div>
         </CardHeader>
 
-        <CardContent className="relative space-y-6">
+        <CardContent className="relative space-y-8">
           {/* Winning Numbers */}
-          <div className="md:hidden flex justify-center items-center gap-3 p-4 bg-muted/20 rounded-lg col-span-2 md:col-span-3">
+          <div className="md:hidden flex justify-start md:justify-center items-center gap-3 bg-muted/20 rounded-lg col-span-2 md:col-span-3">
             <GiftIcon className="w-8 h-8 text-lottery-jackpot" />
-            <div>
+            <div className="flex items-center gap-1">
               <div className="text-sm text-muted-foreground">Gift Reserve</div>
-              <div className="font-semibold text-2xl text-lottery-jackpot">
+              <div className="font-semibold text-xl md:text-2xl text-lottery-jackpot">
                 {parseFloat(giftReserveStatus)} PTK
               </div>
             </div>
@@ -160,7 +171,7 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
 
           {/* Round Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="flex items-center gap-3 p-4 bg-muted/20 rounded-lg">
+            <div className="flex gap-3 bg-muted/20 rounded-lg">
               <Clock className="w-8 h-8 text-primary" />
               <div>
                 <div className="text-sm text-muted-foreground">Duration</div>
@@ -168,7 +179,7 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-muted/20 rounded-lg">
+            <div className="flex items-center gap-3 bg-muted/20 rounded-lg">
               <Users className="w-8 h-8 text-accent" />
               <div>
                 <div className="text-sm text-muted-foreground">Players</div>
@@ -176,19 +187,9 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-muted/20 rounded-lg">
-              <DollarSign className="w-8 h-8 text-secondary" />
-              <div>
-                <div className="text-sm text-muted-foreground">Total Bets</div>
-                <div className="font-semibold">
-                  {parseFloat(round.totalBets)} PTK
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-4 bg-muted/20 rounded-lg col-span-2 md:col-span-3">
+            <div className="flex items-center gap-3 bg-muted/20 rounded-lg col-span-2 md:col-span-3">
               <Trophy className="w-8 h-8 text-lottery-jackpot" />
-              <div>
+              <div className="flex gap-1 items-center">
                 <div className="text-sm text-muted-foreground">Prize Pool</div>
                 <div className="font-semibold text-2xl text-lottery-jackpot">
                   {parseFloat(round.totalPrizePool)} PTK
@@ -198,13 +199,24 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
           </div>
 
           {/* Prize Structure */}
-          <div className="bg-muted/20 rounded-lg p-4">
+          <div className="bg-muted/20 rounded-lg">
             <h4 className="font-semibold mb-3">Prize Structure:</h4>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>5 matches: <span className="text-lottery-jackpot font-bold">800x bet</span></div>
-              <div>4 matches: <span className="text-secondary font-bold">80x bet</span></div>
-              <div>3 matches: <span className="text-primary font-bold">8x bet</span></div>
-              <div>2 matches: <span className="text-accent font-bold">2x bet</span></div>
+              <div>
+                5 matches:{" "}
+                <span className="text-lottery-jackpot font-bold">800x bet</span>
+              </div>
+              <div>
+                4 matches:{" "}
+                <span className="text-secondary font-bold">80x bet</span>
+              </div>
+              <div>
+                3 matches:{" "}
+                <span className="text-primary font-bold">8x bet</span>
+              </div>
+              <div>
+                2 matches: <span className="text-accent font-bold">2x bet</span>
+              </div>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               * All prizes subject to 5% house edge
@@ -213,5 +225,5 @@ export const CurrentRound = ({ round, loading = false, giftReserveStatus }: Curr
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};

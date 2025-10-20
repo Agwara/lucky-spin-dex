@@ -201,18 +201,18 @@ const Index = () => {
               >
                 <TabsTrigger value="play" className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
-                  Play Lottery
+                  Play
                 </TabsTrigger>
                 <TabsTrigger
                   value="staking"
                   className="flex items-center gap-2"
                 >
                   <Trophy className="w-4 h-4" />
-                  Staking
+                  Stake
                 </TabsTrigger>
                 <TabsTrigger value="stats" className="flex items-center gap-2">
                   <Gift className="w-4 h-4" />
-                  My Stats
+                  Stats
                 </TabsTrigger>
                 {isAdmin && (
                   <TabsTrigger

@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Sparkles, Gift, Coins, Gamepad2 } from "lucide-react";
+import { Sparkles, Gift, Coins, Gamepad2, LinkIcon } from "lucide-react";
 import { useLottery } from "@/hooks/useLottery";
 import { toast } from "sonner";
 
@@ -64,14 +64,11 @@ export default function WelcomeModal() {
           <DialogTitle
             className="
               text-xl sm:text-2xl md:text-3xl font-bold 
-              text-center flex items-center justify-center gap-2
+               flex items-center justify-center gap-2
               leading-tight
             "
           >
-            <Sparkles className="text-yellow-400 shrink-0" />
-            <span className="break-words text-center">
-              Welcome to Lucky Spin DEX! 🎰
-            </span>
+            <span className="break-words text-center">Welcome</span>
           </DialogTitle>
           <DialogDescription
             className="
@@ -87,7 +84,7 @@ export default function WelcomeModal() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 text-gray-300">
+        <div className="mt-4 sm:mt-3 space-y-3 sm:space-y-4 text-gray-300">
           <Feature
             icon={
               <Gamepad2 className="text-yellow-400 w-5 h-5 sm:w-6 sm:h-6" />
@@ -96,15 +93,30 @@ export default function WelcomeModal() {
             desc="Play with true randomness powered by Chainlink VRF."
           />
           <Feature
-            icon={<Coins className="text-yellow-400 w-5 h-5 sm:w-6 sm:h-6" />}
-            title="Stake & Earn"
-            desc="Stake PTK tokens to join and earn massive rewards."
-          />
-          <Feature
             icon={<Gift className="text-yellow-400 w-5 h-5 sm:w-6 sm:h-6" />}
             title="Bonus Gifts"
             desc="Play consecutive rounds to unlock random bonuses."
           />
+        </div>
+
+        <div className="mt-2 border-t border-purple-800/50 pt-4 space-y-2 text-gray-300 text-xs sm:text-sm">
+          <p>
+            ⚙️ <span className="text-yellow-400 font-semibold">Note:</span> You
+            need to be connected to the{" "}
+            <span className="text-yellow-400 font-medium">Sepolia Testnet</span>{" "}
+            and also need platform tokens to play.
+          </p>
+          <p>
+            🌐 Get Sepolia ETH from{" "}
+            <a
+              href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-yellow-400 hover:underline"
+            >
+              Google Cloud Faucet <LinkIcon size={14} />
+            </a>
+          </p>
         </div>
 
         <div className="mt-6 flex justify-center">
