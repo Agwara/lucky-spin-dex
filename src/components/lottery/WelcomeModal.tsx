@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Sparkles, Gift, Coins, Gamepad2, LinkIcon } from "lucide-react";
+import { Gift, Gamepad2, LinkIcon } from "lucide-react";
 import { useLottery } from "@/hooks/useLottery";
 import { toast } from "sonner";
 
@@ -33,18 +33,15 @@ export default function WelcomeModal() {
         `Failed to claim and stake bonus: ${error?.message || error.toString()}`
       );
     } finally {
-      localStorage.setItem("hasSeenWelcome", "true");
+      // localStorage.setItem("hasSeenWelcome", "true");
       setIsClaimingBonus(false);
       setOpen(false);
     }
   };
 
   useEffect(() => {
-    const hasSeenIntro = localStorage.getItem("hasSeenWelcome");
-    if (!hasSeenIntro) {
-      const timer = setTimeout(() => setOpen(true), 500);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => setOpen(true), 500);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
