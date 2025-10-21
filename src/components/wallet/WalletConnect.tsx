@@ -131,6 +131,12 @@ export const WalletConnect = () => {
         <CardDescription className="text-sm sm:text-base">
           Connect your wallet to participate in the lottery
         </CardDescription>
+        <p>
+          ⚙️ <span className="text-yellow-400 font-semibold">Note:</span> You
+          need to be connected to the{" "}
+          <span className="text-yellow-400 font-medium">Sepolia Testnet</span>{" "}
+          and also need platform tokens to play.
+        </p>
       </CardHeader>
 
       <CardContent className="space-y-3">
